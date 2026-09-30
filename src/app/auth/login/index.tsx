@@ -2,11 +2,11 @@ import { StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
 
-export default function App() {
+export default function LoginPage() {
   return (
     <View style={styles.container}>
       <Logo />
-      <Text>Break the Silence Against Domestic Violence</Text>
+      <Text>Login Page</Text>
       <StatusBar style="auto" />
     </View>
   );
