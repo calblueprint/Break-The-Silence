@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
 
 export default function App() {
@@ -9,9 +9,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Logo />
-
       <Text>Break the Silence Against Domestic Violence</Text>
-
       <Pressable onPress={() => router.push('/support')}>
         <Text style={styles.enterApp}>Enter App</Text>
       </Pressable>
@@ -32,6 +30,6 @@ const styles = StyleSheet.create({
     padding: 20,
     color: 'purple',
     fontWeight: 'bold',
-    fontSize: 18
+    fontSize: 18,
   },
 });
