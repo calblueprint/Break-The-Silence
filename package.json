@@ -4,8 +4,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "lint:check": "pnpm exec eslint .",
     "lint:fix": "pnpm exec eslint . --fix",
     "prettier:check": "pnpm exec prettier --check .",

@@ -6,7 +6,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Logo />
-      <Text>Break the Silence Against Domestic Violence</Text>
+      <Text>Profile</Text>
       <StatusBar style="auto" />
     </View>
   );

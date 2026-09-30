@@ -9,7 +9,8 @@
     "icon": "./assets/bp-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.charlottelaw.mobile-app-template"
     },
     "android": {
       "adaptiveIcon": {
