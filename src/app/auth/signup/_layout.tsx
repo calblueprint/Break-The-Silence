@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 function SignUpLayout() {
   return (
     <Stack>
-      <Stack.Screen name="Sign Up Page" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
     </Stack>
   );
 }
