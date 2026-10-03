@@ -1,13 +1,22 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import Logo from '@/components/Logo';
+import { Link } from 'expo-router';
 
-export default function App() {
+export default function Support() {
   return (
     <View style={styles.container}>
-      <Logo />
-      <Text>Main Support</Text>
-      <StatusBar style="auto" />
+      <Text>Support</Text>
+
+      <Link href="/support/guides">
+        Guides
+      </Link>
+
+      <Link href="/support/resources">
+        Resources
+      </Link>
+
+      <Link href="/support/support-line">
+        Support Line
+      </Link>
     </View>
   );
 }
