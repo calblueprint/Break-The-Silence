@@ -1,14 +1,13 @@
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 
-function StackLayout() {
+export default function AuthLayout() {
   return (
-    <SafeAreaProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-      </Stack>
-    </SafeAreaProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+
+      <Stack.Screen name="signup" />
+
+      <Stack.Screen name="reset-password" />
+    </Stack>
   );
 }
-
-export default StackLayout;
