@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
-import supabase from '../../../../api/supabase/client';
+import { sendPasswordReset } from '../../../../api/supabase/auth';
 
 export default function ResetPassword() {
   const [email, setEmail] = useState('');
@@ -14,17 +14,15 @@ export default function ResetPassword() {
       Alert.alert('Error', 'Please enter your email.');
       return;
     }
-
     setLoading(true);
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    
-    setLoading(false);
-
-    if (error) {
-      Alert.alert('Error', error.message);
-    } else {
+    try {
+      await sendPasswordReset(email);
       Alert.alert('Success', 'Check your email for the reset link!');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Something went wrong.';
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,7 +30,7 @@ export default function ResetPassword() {
     <View style={styles.container}>
       <Logo />
       <Text>Reset Password Page</Text>
-      
+
       <TextInput
         value={email}
         onChangeText={setEmail}
@@ -40,17 +38,17 @@ export default function ResetPassword() {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      
+
       <Button
         title={loading ? 'Sending...' : 'Send Reset Link'}
         onPress={handleReset}
       />
-      
+
       <Button
         title="Back to Login"
         onPress={() => router.push('/auth/login')}
       />
-      
+
       <StatusBar style="auto" />
     </View>
   );

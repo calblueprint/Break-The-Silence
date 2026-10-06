@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
 import { signUp } from '../../../../api/supabase/auth';
-import { router } from 'expo-router';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');

@@ -36,7 +36,7 @@ export const signOut = async () => {
 };
 
 export const sendPasswordReset = async (email: string) => {
-  const resetUrl = Linking.createURL('reset-password');
+  const resetUrl = Linking.createURL('/auth/update-password');
 
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: resetUrl,
