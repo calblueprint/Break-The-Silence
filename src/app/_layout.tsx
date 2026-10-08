@@ -5,6 +5,7 @@ function StackLayout() {
   return (
     <SafeAreaProvider>
       <Stack>
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
