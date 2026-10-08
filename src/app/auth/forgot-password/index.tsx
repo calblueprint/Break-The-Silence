@@ -7,7 +7,7 @@ import BackArrowIcon from '~/assets/Vector.svg';
 
 type Step = 'form' | 'confirm' | 'sent';
 
-// TODO: replace with Keyo's reusable Supabase auth function
+// Replace with Keyo's reusable Supabase auth function
 async function requestPasswordReset(email: string): Promise<void> {
   void email;
   throw new Error('Password reset request is not implemented yet.');
