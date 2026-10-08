@@ -6,17 +6,11 @@ export default function Support() {
     <View style={styles.container}>
       <Text>Support</Text>
 
-      <Link href="/support/guides">
-        Guides
-      </Link>
+      <Link href="/support/guides">Guides</Link>
 
-      <Link href="/support/resources">
-        Resources
-      </Link>
+      <Link href="/support/resources">Resources</Link>
 
-      <Link href="/support/support-line">
-        Support Line
-      </Link>
+      <Link href="/support/support-line">Support Line</Link>
     </View>
   );
 }

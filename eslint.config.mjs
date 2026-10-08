@@ -20,4 +20,21 @@ export default [
       '@typescript-eslint/no-shadow': 'error',
     },
   },
+  // metro.config.js is loaded directly by Node, unlike the ESM app
+  // code above, so it needs require/module/__dirname recognized as globals
+  // and the no require imports rule turned off just for this file.
+  {
+    files: ['metro.config.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        require: 'readonly',
+        module: 'writable',
+        __dirname: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
 ];
