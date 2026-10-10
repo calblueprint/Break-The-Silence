@@ -1,12 +1,4 @@
-import {
-  Button,
-  StyleSheet,
-  StyleSheet,
-  Text,
-  Text,
-  View,
-  View,
-} from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
