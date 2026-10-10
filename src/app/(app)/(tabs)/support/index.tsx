@@ -1,9 +1,16 @@
-import { Button, StyleSheet, Text, View } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  StyleSheet,
+  Text,
+  Text,
+  View,
+  View,
+} from 'react-native';
+import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
 import { signOut } from '../../../../../api/supabase/auth';
-import { StyleSheet, Text, View } from 'react-native';
-import { Link } from 'expo-router';
 
 export default function Support() {
   return (
@@ -19,17 +26,11 @@ export default function Support() {
       <StatusBar style="auto" />
       <Text>Support</Text>
 
-      <Link href="/support/guides">
-        Guides
-      </Link>
+      <Link href="/support/guides">Guides</Link>
 
-      <Link href="/support/resources">
-        Resources
-      </Link>
+      <Link href="/support/resources">Resources</Link>
 
-      <Link href="/support/support-line">
-        Support Line
-      </Link>
+      <Link href="/support/support-line">Support Line</Link>
     </View>
   );
 }
