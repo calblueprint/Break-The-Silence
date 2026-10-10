@@ -13,7 +13,7 @@ export default function UpdatePassword() {
   }>();
   const handled = useRef(false);
   const [ready, setReady] = useState(false);
-  const [, setLinkError] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +40,13 @@ export default function UpdatePassword() {
   if (!ready) {
     return (
       <View style={styles.container}>
-        <Text>Verifying link...</Text>
+        {linkError ? (
+          <Text style={{ color: 'red', textAlign: 'center', padding: 20 }}>
+            {linkError}
+          </Text>
+        ) : (
+          <Text>Verifying Link...</Text>
+        )}
       </View>
     );
   }
@@ -50,6 +56,18 @@ export default function UpdatePassword() {
       Alert.alert('Error', 'Please enter a new password.');
       return;
     }
+
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        'Weak Password',
+        'Password must be at least 8 characters long, and contain at least one uppercase letter, one number, and one special character.',
+      );
+      return;
+    }
+
     setLoading(true);
     try {
       await updatePassword(password);
@@ -64,14 +82,6 @@ export default function UpdatePassword() {
       setLoading(false);
     }
   };
-
-  if (!ready) {
-    return (
-      <View style={styles.container}>
-        <Text>Verifying link...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
