@@ -1,10 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
+import { signOut } from '../../../../../api/supabase/auth';
 
 export default function App() {
   return (
     <View style={styles.container}>
+      <Button
+        title="Sign Out"
+        onPress={async () => {
+          await signOut();
+        }}
+      />
       <Logo />
       <Text>Profile</Text>
       <StatusBar style="auto" />

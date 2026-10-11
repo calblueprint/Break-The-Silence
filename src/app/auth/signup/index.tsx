@@ -9,6 +9,7 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -17,9 +18,16 @@ export default function SignUpPage() {
     }
 
     setLoading(true);
+    setMessage(null);
 
     try {
-      await signUp(email, password);
+      const { session } = await signUp(email.trim(), password);
+
+      if (!session) {
+        setMessage(
+          'Check your email and open the confirmation link on this device to finish signing up.',
+        );
+      }
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert('Sign Up Failed', error.message);
@@ -52,7 +60,9 @@ export default function SignUpPage() {
       <Button
         title={loading ? 'Signing up...' : 'Sign Up'}
         onPress={handleSignUp}
+        disabled={loading}
       />
+      {message ? <Text style={styles.message}>{message}</Text> : null}
       <Button
         title="Already have an account? Log In"
         onPress={() => router.push('/auth/login')}
@@ -68,5 +78,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  message: {
+    marginTop: 12,
+    paddingHorizontal: 24,
+    textAlign: 'center',
   },
 });
