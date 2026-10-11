@@ -1,19 +1,41 @@
+import { StyleSheet, View } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import { Tabs, useRouter } from 'expo-router';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function TabsLayout() {
   const router = useRouter();
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        tabBarStyle: {
+          height: 85,
+          // paddingBottom: 10,
+          paddingBottom: 0,
+        },
+        tabBarActiveTintColor: '#3524C4',
+        tabBarItemStyle: {
+          flex: 1,
+        },
+        tabBarIconStyle: {
+          width: 50,
+          height: 50,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          marginTop: -4,
+        },
+      }}
+    >
       <Tabs.Screen
         name="support"
         options={{
           title: 'Support',
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="question-circle" size={28} color={color} />
+            <SimpleLineIcons name="earphones-alt" size={29} color={color} />
           ),
         }}
       />
@@ -22,20 +44,25 @@ export default function TabsLayout() {
         options={{
           title: 'Journal',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="journal-outline" size={28} color={color} />
+            <Ionicons name="journal-outline" size={31} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="safe-exit"
         options={{
+          tabBarLabelStyle: {
+            opacity: 0,
+          },
+          tabBarIconStyle: {
+            width: 70,
+            height: 70,
+          },
           title: 'Safe Exit',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="exit-to-app"
-              size={28}
-              color={color}
-            />
+          tabBarIcon: () => (
+            <View style={styles.plusButton}>
+              <Feather name="x" color="white" size={50} />
+            </View>
           ),
         }}
         listeners={{
@@ -48,9 +75,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="documents"
         options={{
-          title: 'Documents',
+          title: 'Toolkit',
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="user-circle" size={28} color={color} />
+            <Icon name="toolbox-outline" size={35} color={color} />
           ),
         }}
       />
@@ -59,7 +86,7 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="document-text-outline" size={28} color={color} />
+            <Ionicons name="person-outline" size={29} color={color} />
           ),
         }}
       />
@@ -78,3 +105,22 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  plusButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#3524C4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#3524C4',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 7,
+  },
+});
