@@ -8,6 +8,7 @@ type ButtonProps = {
   onPress: () => void;
   buttonStyle?: RNButtonProps['buttonStyle'];
   titleStyle?: RNButtonProps['titleStyle'];
+  containerStyle?: RNButtonProps['containerStyle'];
 };
 
 // A styled button component
@@ -18,9 +19,11 @@ function Button({
   text,
   buttonStyle,
   titleStyle,
+  containerStyle,
 }: ButtonProps) {
   return (
     <RNButton
+      containerStyle={containerStyle}
       disabledStyle={styles.disabledStyle}
       buttonStyle={[styles.buttonStyle, buttonStyle]}
       disabledTitleStyle={styles.disabledTitleStyle}

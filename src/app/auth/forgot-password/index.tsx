@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import colors from '@/styles/colors';
+import Button from '@/components/Button/Button';
 import BackArrowIcon from '~/assets/Vector.svg';
+import {
+  shared,
+  forgotPasswordStyles as styles,
+  submitButtonStyle,
+  submitButtonTitleStyle,
+} from '../styles';
 
 type Step = 'form' | 'confirm' | 'sent';
 
@@ -55,22 +61,22 @@ export default function ForgotPasswordPage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backButton} onPress={handleBack}>
-        <BackArrowIcon style={styles.backArrowIcon} />
+      <Pressable style={shared.backButton} onPress={handleBack}>
+        <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 
       {step === 'form' && (
-        <View style={styles.stepContent}>
-          <Text style={styles.title}>Forgot Password</Text>
-          <View style={styles.divider} />
-          <Text style={styles.subtitle}>
+        <View style={shared.stepContent}>
+          <Text style={shared.title}>Forgot Password</Text>
+          <View style={shared.divider} />
+          <Text style={shared.subtitle}>
             Enter the email you used to sign up with to receive a link to reset
             your password
           </Text>
 
-          <View style={styles.field}>
+          <View style={shared.field}>
             <TextInput
-              style={[styles.input, emailFocused && styles.inputFocused]}
+              style={[shared.input, emailFocused && shared.inputFocused]}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -80,70 +86,56 @@ export default function ForgotPasswordPage() {
             />
           </View>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={shared.error}>{error}</Text> : null}
 
-          <Pressable
-            style={[
-              styles.submitButton,
-              {
-                backgroundColor: isFilled
-                  ? colors.darkGreen
-                  : colors.buttonBackground,
-              },
-            ]}
+          <Button
+            text="Confirm"
             disabled={!isFilled}
             onPress={handleContinue}
-          >
-            <Text
-              style={[
-                styles.submitButtonText,
-                { color: isFilled ? colors.white : colors.text },
-              ]}
-            >
-              Confirm
-            </Text>
-          </Pressable>
+            containerStyle={{ width: '100%' }}
+            buttonStyle={submitButtonStyle(isFilled)}
+            titleStyle={submitButtonTitleStyle(isFilled)}
+          />
         </View>
       )}
 
       {step === 'confirm' && (
-        <View style={styles.stepContent}>
-          <Text style={styles.title}>Confirm your email</Text>
-          <View style={styles.divider} />
-          <Text style={styles.subtitle}>Is this the right email for you?</Text>
+        <View style={shared.stepContent}>
+          <Text style={shared.title}>Confirm your email</Text>
+          <View style={shared.divider} />
+          <Text style={shared.subtitle}>Is this the right email for you?</Text>
 
           <Text style={styles.emailText}>{email}</Text>
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={shared.error}>{error}</Text> : null}
 
-          <Pressable
-            style={[styles.submitButton, { backgroundColor: colors.darkGreen }]}
+          <Button
+            text={loading ? 'Sending...' : 'Confirm'}
             disabled={loading}
             onPress={handleConfirm}
-          >
-            <Text style={[styles.submitButtonText, { color: colors.white }]}>
-              {loading ? 'Sending...' : 'Confirm'}
-            </Text>
-          </Pressable>
+            containerStyle={{ width: '100%' }}
+            buttonStyle={submitButtonStyle(true)}
+            titleStyle={submitButtonTitleStyle(true)}
+          />
         </View>
       )}
 
       {step === 'sent' && (
-        <View style={styles.stepContent}>
-          <Text style={styles.title}>Email sent!</Text>
-          <View style={styles.divider} />
-          <Text style={styles.subtitle}>
+        <View style={shared.stepContent}>
+          <Text style={shared.title}>Email sent!</Text>
+          <View style={shared.divider} />
+          <Text style={shared.subtitle}>
             Please check your inbox to find an email to reset your password
           </Text>
 
-          <Pressable
-            style={[styles.submitButton, { backgroundColor: colors.darkGreen }]}
+          <Button
+            text="Back to Sign In"
+            disabled={false}
             onPress={() => router.replace('/auth/login')}
-          >
-            <Text style={[styles.submitButtonText, { color: colors.white }]}>
-              Back to Sign In
-            </Text>
-          </Pressable>
+            containerStyle={{ width: '100%' }}
+            buttonStyle={submitButtonStyle(true)}
+            titleStyle={submitButtonTitleStyle(true)}
+          />
         </View>
       )}
 
@@ -151,83 +143,3 @@ export default function ForgotPasswordPage() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 41,
-    gap: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  backArrowIcon: {
-    width: 21.001,
-    height: 13.502,
-  },
-  stepContent: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 27,
-    alignSelf: 'stretch',
-  },
-  title: {
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    fontWeight: 700,
-  },
-  divider: {
-    width: '100%',
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  subtitle: {
-    fontFamily: 'Montserrat',
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-  field: {
-    width: '100%',
-  },
-  input: {
-    width: '100%',
-    height: 44,
-    backgroundColor: colors.inputBackground,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    padding: 10,
-  },
-  inputFocused: {
-    borderColor: colors.inputFocusBorder,
-    backgroundColor: colors.white,
-  },
-  emailText: {
-    fontFamily: 'Montserrat',
-    fontSize: 22,
-    fontWeight: 700,
-    color: colors.darkGreen,
-  },
-  error: {
-    color: 'red',
-  },
-  submitButton: {
-    width: '100%',
-    height: 48,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: 600,
-  },
-});

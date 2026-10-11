@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import colors from '@/styles/colors';
+import Button from '@/components/Button/Button';
 import EyeIconOpen from '~/assets/AiOutlineEye.svg';
 import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BackArrowIcon from '~/assets/Vector.svg';
+import {
+  shared,
+  signupStyles as styles,
+  submitButtonStyle,
+  submitButtonTitleStyle,
+} from '../styles';
 
 // Replace with Keyo's auth function
 async function signUp(
@@ -69,11 +75,11 @@ export default function SignUpPage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <BackArrowIcon style={styles.backArrowIcon} />
+      <Pressable style={shared.backButton} onPress={() => router.back()}>
+        <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 
-      <Text style={styles.title}>Create an Account</Text>
+      <Text style={shared.title}>Create an Account</Text>
       <Text style={styles.subtitle}>
         We need a couple more details from you
       </Text>
@@ -81,9 +87,9 @@ export default function SignUpPage() {
 
       <View style={styles.row}>
         <View style={styles.halfField}>
-          <Text style={styles.label}>First name</Text>
+          <Text style={shared.label}>First name</Text>
           <TextInput
-            style={[styles.input, firstNameFocused && styles.inputFocused]}
+            style={[styles.input, firstNameFocused && shared.inputFocused]}
             value={firstName}
             onChangeText={setFirstName}
             onFocus={() => setFirstNameFocused(true)}
@@ -91,9 +97,9 @@ export default function SignUpPage() {
           />
         </View>
         <View style={styles.halfField}>
-          <Text style={styles.label}>Last name</Text>
+          <Text style={shared.label}>Last name</Text>
           <TextInput
-            style={[styles.input, lastNameFocused && styles.inputFocused]}
+            style={[styles.input, lastNameFocused && shared.inputFocused]}
             value={lastName}
             onChangeText={setLastName}
             onFocus={() => setLastNameFocused(true)}
@@ -102,14 +108,14 @@ export default function SignUpPage() {
         </View>
       </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Password</Text>
-        <View style={styles.passwordWrapper}>
+      <View style={shared.field}>
+        <Text style={shared.label}>Password</Text>
+        <View style={shared.passwordWrapper}>
           <TextInput
             style={[
               styles.input,
-              styles.passwordInput,
-              passwordFocused && styles.inputFocused,
+              shared.passwordInput,
+              passwordFocused && shared.inputFocused,
             ]}
             secureTextEntry={!showPassword}
             value={password}
@@ -118,22 +124,22 @@ export default function SignUpPage() {
             onBlur={() => setPasswordFocused(false)}
           />
           <Pressable
-            style={styles.eyeButton}
+            style={shared.eyeButton}
             onPress={() => setShowPassword(prev => !prev)}
           >
             {showPassword ? (
-              <EyeIconOpen style={styles.eyeIcon} />
+              <EyeIconOpen style={shared.eyeIcon} />
             ) : (
-              <EyeIcon style={styles.eyeIcon} />
+              <EyeIcon style={shared.eyeIcon} />
             )}
           </Pressable>
         </View>
       </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Confirm password</Text>
+      <View style={shared.field}>
+        <Text style={shared.label}>Confirm password</Text>
         <TextInput
-          style={[styles.input, confirmPasswordFocused && styles.inputFocused]}
+          style={[styles.input, confirmPasswordFocused && shared.inputFocused]}
           secureTextEntry={!showPassword}
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -142,10 +148,10 @@ export default function SignUpPage() {
         />
       </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Email</Text>
+      <View style={shared.field}>
+        <Text style={shared.label}>Email</Text>
         <TextInput
-          style={[styles.input, emailFocused && styles.inputFocused]}
+          style={[styles.input, emailFocused && shared.inputFocused]}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -155,136 +161,18 @@ export default function SignUpPage() {
         />
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={shared.error}>{error}</Text> : null}
 
-      <Pressable
-        style={[
-          styles.submitButton,
-          {
-            backgroundColor: isFilled
-              ? colors.darkGreen
-              : colors.buttonBackground,
-          },
-        ]}
+      <Button
+        text={loading ? 'Creating account...' : 'Create an account'}
         disabled={loading}
         onPress={handleSignUp}
-      >
-        <Text
-          style={[
-            styles.submitButtonText,
-            { color: isFilled ? colors.white : colors.text },
-          ]}
-        >
-          {loading ? 'Creating account...' : 'Create an account'}
-        </Text>
-      </Pressable>
+        containerStyle={{ width: '100%' }}
+        buttonStyle={submitButtonStyle(isFilled)}
+        titleStyle={submitButtonTitleStyle(isFilled)}
+      />
 
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 24,
-    paddingBottom: 48,
-    gap: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  backArrowIcon: {
-    width: 21.001,
-    height: 13.502,
-  },
-  title: {
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    fontWeight: 700,
-  },
-  subtitle: {
-    fontFamily: 'Montserrat',
-    fontSize: 17,
-    fontWeight: 400,
-    color: colors.text,
-  },
-  securedText: {
-    fontFamily: 'Montserrat',
-    fontSize: 14,
-    fontStyle: 'italic',
-    color: colors.textMuted,
-    fontWeight: 400,
-    lineHeight: 17,
-    marginBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    width: '100%',
-    gap: 12,
-  },
-  halfField: {
-    flex: 1,
-  },
-  field: {
-    width: '100%',
-  },
-  label: {
-    marginBottom: 4,
-    fontSize: 14,
-    color: colors.text,
-  },
-  input: {
-    width: '100%',
-    height: 40,
-    backgroundColor: colors.inputBackground,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    padding: 10,
-  },
-  inputFocused: {
-    borderColor: colors.inputFocusBorder,
-    backgroundColor: colors.white,
-  },
-  passwordWrapper: {
-    width: '100%',
-    justifyContent: 'center',
-  },
-  passwordInput: {
-    paddingRight: 40,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 10,
-    height: 44,
-    justifyContent: 'center',
-  },
-  eyeIcon: {
-    width: 20,
-    height: 20,
-  },
-  error: {
-    color: 'red',
-  },
-  submitButton: {
-    width: '100%',
-    height: 48,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-    backgroundColor: colors.darkGreen,
-  },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: 600,
-  },
-});

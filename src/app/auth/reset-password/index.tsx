@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import colors from '@/styles/colors';
+import Button from '@/components/Button/Button';
 import EyeIconOpen from '~/assets/AiOutlineEye.svg';
 import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BackArrowIcon from '~/assets/Vector.svg';
+import {
+  shared,
+  resetPasswordStyles as styles,
+  submitButtonStyle,
+  submitButtonTitleStyle,
+} from '../styles';
 
 // Replace with Keyo's code
 async function updatePassword(newPassword: string): Promise<void> {
@@ -51,23 +57,23 @@ export default function ResetPasswordPage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <BackArrowIcon style={styles.backArrowIcon} />
+      <Pressable style={shared.backButton} onPress={() => router.back()}>
+        <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 
-      <View style={styles.stepContent}>
-        <Text style={styles.title}>Reset Password</Text>
-        <View style={styles.divider} />
-        <Text style={styles.subtitle}>Choose a new password</Text>
+      <View style={shared.stepContent}>
+        <Text style={shared.title}>Reset Password</Text>
+        <View style={shared.divider} />
+        <Text style={shared.subtitle}>Choose a new password</Text>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>New password</Text>
-          <View style={styles.passwordWrapper}>
+        <View style={shared.field}>
+          <Text style={shared.label}>New password</Text>
+          <View style={shared.passwordWrapper}>
             <TextInput
               style={[
-                styles.input,
-                styles.passwordInput,
-                newPasswordFocused && styles.inputFocused,
+                shared.input,
+                shared.passwordInput,
+                newPasswordFocused && shared.inputFocused,
               ]}
               secureTextEntry={!showPassword}
               value={newPassword}
@@ -76,24 +82,24 @@ export default function ResetPasswordPage() {
               onBlur={() => setNewPasswordFocused(false)}
             />
             <Pressable
-              style={styles.eyeButton}
+              style={shared.eyeButton}
               onPress={() => setShowPassword(prev => !prev)}
             >
               {showPassword ? (
-                <EyeIconOpen style={styles.eyeIcon} />
+                <EyeIconOpen style={shared.eyeIcon} />
               ) : (
-                <EyeIcon style={styles.eyeIcon} />
+                <EyeIcon style={shared.eyeIcon} />
               )}
             </Pressable>
           </View>
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Confirm password</Text>
+        <View style={shared.field}>
+          <Text style={shared.label}>Confirm password</Text>
           <TextInput
             style={[
-              styles.input,
-              confirmPasswordFocused && styles.inputFocused,
+              shared.input,
+              confirmPasswordFocused && shared.inputFocused,
             ]}
             secureTextEntry={!showPassword}
             value={confirmPassword}
@@ -103,128 +109,19 @@ export default function ResetPasswordPage() {
           />
         </View>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text style={shared.error}>{error}</Text> : null}
 
-        <Pressable
-          style={[
-            styles.submitButton,
-            {
-              backgroundColor: isFilled
-                ? colors.darkGreen
-                : colors.buttonBackground,
-            },
-          ]}
+        <Button
+          text={loading ? 'Updating...' : 'Update Password'}
           disabled={!isFilled || loading}
           onPress={handleUpdate}
-        >
-          <Text
-            style={[
-              styles.submitButtonText,
-              { color: isFilled ? colors.white : colors.text },
-            ]}
-          >
-            {loading ? 'Updating...' : 'Update Password'}
-          </Text>
-        </Pressable>
+          containerStyle={{ width: '100%' }}
+          buttonStyle={submitButtonStyle(isFilled)}
+          titleStyle={submitButtonTitleStyle(isFilled)}
+        />
       </View>
 
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 41,
-    gap: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  backArrowIcon: {
-    width: 21.001,
-    height: 13.502,
-  },
-  stepContent: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 27,
-    alignSelf: 'stretch',
-  },
-  title: {
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    fontWeight: 700,
-  },
-  divider: {
-    width: '100%',
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  subtitle: {
-    fontFamily: 'Montserrat',
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-  field: {
-    width: '100%',
-  },
-  label: {
-    marginBottom: 4,
-    fontSize: 14,
-    color: colors.text,
-  },
-  input: {
-    width: '100%',
-    height: 44,
-    backgroundColor: colors.inputBackground,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    padding: 10,
-  },
-  inputFocused: {
-    borderColor: colors.inputFocusBorder,
-    backgroundColor: colors.white,
-  },
-  passwordWrapper: {
-    width: '100%',
-    justifyContent: 'center',
-  },
-  passwordInput: {
-    paddingRight: 40,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 10,
-    height: 44,
-    justifyContent: 'center',
-  },
-  eyeIcon: {
-    width: 20,
-    height: 20,
-  },
-  error: {
-    color: 'red',
-  },
-  submitButton: {
-    width: '100%',
-    height: 48,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  submitButtonText: {
-    fontSize: 16,
-    fontWeight: 600,
-  },
-});
