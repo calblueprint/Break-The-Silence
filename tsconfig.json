@@ -14,7 +14,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "~/*": ["./*"]
-    }
+    },
+    "types": ["node"]
   },
   "extends": "expo/tsconfig.base",
   "include": ["src/**/*.ts", "src/**/*.tsx", "./graphics.d.ts"],
