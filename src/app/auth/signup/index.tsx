@@ -21,13 +21,14 @@ export default function SignUpPage() {
     setMessage(null);
 
     try {
-      const { session } = await signUp(email.trim(), password);
+      await signUp(email.trim(), password);
 
-      if (!session) {
-        setMessage(
-          'Check your email and open the confirmation link on this device to finish signing up.',
-        );
-      }
+      setMessage('Check your email for the 8-digit verification code.');
+
+      router.push({
+        pathname: '/auth/verify-code',
+        params: { email: email.trim() },
+      });
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert('Sign Up Failed', error.message);
