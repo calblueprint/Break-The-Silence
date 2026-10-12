@@ -266,4 +266,10 @@ export const signupStyles = StyleSheet.create({
     ...inputBase,
     height: 40,
   },
+  message: {
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
 });

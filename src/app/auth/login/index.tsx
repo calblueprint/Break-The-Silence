@@ -6,6 +6,7 @@ import Button from '@/components/Button/Button';
 import EyeIconOpen from '~/assets/AiOutlineEye.svg';
 import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BTSADVLogo from '~/assets/btsdav-logo.png';
+import { signIn } from '../../../../api/supabase/auth';
 import {
   LOGIN_FIELD_WIDTH,
   shared,
@@ -13,13 +14,6 @@ import {
   submitButtonStyle,
   submitButtonTitleStyle,
 } from '../styles';
-
-// TODO: replace with Keyo's reusable Supabase auth function
-async function signIn(email: string, password: string): Promise<void> {
-  void email;
-  void password;
-  throw new Error('Sign in is not implemented yet.');
-}
 
 export default function LoginPage() {
   const router = useRouter();

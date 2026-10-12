@@ -6,26 +6,13 @@ import Button from '@/components/Button/Button';
 import EyeIconOpen from '~/assets/AiOutlineEye.svg';
 import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BackArrowIcon from '~/assets/Vector.svg';
+import { signUp } from '../../../../api/supabase/auth';
 import {
   shared,
   signupStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
 } from '../styles';
-
-// Replace with Keyo's auth function
-async function signUp(
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string,
-): Promise<void> {
-  void email;
-  void password;
-  void firstName;
-  void lastName;
-  throw new Error('Sign up is not implemented yet.');
-}
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -36,6 +23,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [firstNameFocused, setFirstNameFocused] = useState(false);
   const [lastNameFocused, setLastNameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
@@ -51,6 +39,7 @@ export default function SignUpPage() {
 
   async function handleSignUp() {
     setError(null);
+    setMessage(null);
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
@@ -60,8 +49,16 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await signUp(email, password, firstName, lastName);
-      router.replace('/support');
+      // TODO: send firstName/lastName once signUp supports profile metadata
+      const { session } = await signUp(email.trim(), password);
+
+      if (session) {
+        router.replace('/support');
+      } else {
+        setMessage(
+          'Check your email and open the confirmation link on this device to finish signing up.',
+        );
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -162,6 +159,7 @@ export default function SignUpPage() {
       </View>
 
       {error ? <Text style={shared.error}>{error}</Text> : null}
+      {message ? <Text style={styles.message}>{message}</Text> : null}
 
       <Button
         text={loading ? 'Creating account...' : 'Create an account'}

@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
+import { signOut } from '../../../../../api/supabase/auth';
 
 export default function App() {
   const router = useRouter();
@@ -15,6 +16,13 @@ export default function App() {
         text="Change Password"
         disabled={false}
         onPress={() => router.push('/auth/reset-password')}
+      />
+      <Button
+        text="Sign Out"
+        disabled={false}
+        onPress={async () => {
+          await signOut();
+        }}
       />
       <StatusBar style="auto" />
     </View>

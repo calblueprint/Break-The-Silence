@@ -6,18 +6,13 @@ import Button from '@/components/Button/Button';
 import EyeIconOpen from '~/assets/AiOutlineEye.svg';
 import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BackArrowIcon from '~/assets/Vector.svg';
+import { updatePassword } from '../../../../api/supabase/auth';
 import {
   shared,
   resetPasswordStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
 } from '../styles';
-
-// Replace with Keyo's code
-async function updatePassword(newPassword: string): Promise<void> {
-  void newPassword;
-  throw new Error('Password update is not implemented yet.');
-}
 
 export default function ResetPasswordPage() {
   const router = useRouter();
