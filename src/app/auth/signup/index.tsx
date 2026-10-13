@@ -163,7 +163,7 @@ export default function SignUpPage() {
 
       <Button
         text={loading ? 'Creating account...' : 'Create an account'}
-        disabled={loading}
+        disabled={!isFilled || loading}
         onPress={handleSignUp}
         containerStyle={{ width: '100%' }}
         buttonStyle={submitButtonStyle(isFilled)}

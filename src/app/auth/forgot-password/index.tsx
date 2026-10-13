@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import BackArrowIcon from '~/assets/Vector.svg';
+import { sendPasswordReset } from '../../../../api/supabase/auth';
 import {
   shared,
   forgotPasswordStyles as styles,
@@ -12,12 +13,6 @@ import {
 } from '../styles';
 
 type Step = 'form' | 'confirm' | 'sent';
-
-// Replace with Keyo's reusable Supabase auth function
-async function requestPasswordReset(email: string): Promise<void> {
-  void email;
-  throw new Error('Password reset request is not implemented yet.');
-}
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -46,7 +41,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await requestPasswordReset(email);
+      await sendPasswordReset(email.trim());
       setStep('sent');
     } catch (err) {
       setError(

@@ -100,7 +100,7 @@ export default function LoginPage() {
       <View style={styles.field}>
         <Button
           text={loading ? 'Logging In...' : 'Log In'}
-          disabled={loading}
+          disabled={!isFilled || loading}
           onPress={handleSignIn}
           buttonStyle={submitButtonStyle(isFilled, {
             width: LOGIN_FIELD_WIDTH,
