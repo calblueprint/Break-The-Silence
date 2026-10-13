@@ -50,15 +50,14 @@ export default function SignUpPage() {
 
     try {
       // TODO: send firstName/lastName once signUp supports profile metadata
-      const { session } = await signUp(email.trim(), password);
+      await signUp(email.trim(), password);
 
-      if (session) {
-        router.replace('/support');
-      } else {
-        setMessage(
-          'Check your email and open the confirmation link on this device to finish signing up.',
-        );
-      }
+      setMessage('Check your email for the 6-digit verification code.');
+
+      router.push({
+        pathname: '/auth/verify-code',
+        params: { email: email.trim() },
+      });
     } catch (err) {
       setError(
         err instanceof Error
