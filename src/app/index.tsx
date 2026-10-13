@@ -14,11 +14,6 @@ export default function App() {
         <Text style={styles.enterApp}>Enter App</Text>
       </Pressable>
 
-      {/* TEMP: bypass login while it's stubbed, to preview the tabs/Profile screens. Remove before committing. */}
-      <Pressable onPress={() => router.push('/support')}>
-        <Text style={styles.enterApp}>[DEV] Skip to tabs</Text>
-      </Pressable>
-
       <StatusBar style="auto" />
     </View>
   );
