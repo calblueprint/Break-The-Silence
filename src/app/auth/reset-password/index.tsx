@@ -1,64 +1,122 @@
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import { router } from 'expo-router';
+import { Pressable, Text, TextInput, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import Logo from '@/components/Logo';
-import { sendPasswordReset } from '../../../../api/supabase/auth';
+import Button from '@/components/Button/Button';
+import EyeIconOpen from '~/assets/AiOutlineEye.svg';
+import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
+import BackArrowIcon from '~/assets/Vector.svg';
+import { updatePassword } from '../../../../api/supabase/auth';
+import {
+  shared,
+  resetPasswordStyles as styles,
+  submitButtonStyle,
+  submitButtonTitleStyle,
+} from '../styles';
 
-export default function ResetPassword() {
-  const [email, setEmail] = useState('');
+export default function ResetPasswordPage() {
+  const router = useRouter();
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPasswordFocused, setNewPasswordFocused] = useState(false);
+  const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const isFilled =
+    newPassword.trim().length > 0 && confirmPassword.trim().length > 0;
 
-  const handleReset = async () => {
-    if (!email) {
-      Alert.alert('Error', 'Please enter your email.');
+  async function handleUpdate() {
+    setError(null);
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
+
     setLoading(true);
+
     try {
-      await sendPasswordReset(email);
-      Alert.alert('Success', 'Check your email for the reset link!');
-    } catch (e) {
-      const message = e instanceof Error ? e.message : 'Something went wrong.';
-      Alert.alert('Error', message);
+      await updatePassword(newPassword);
+      router.replace('/auth/login');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to update password. Please try again.',
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
-      <Logo />
-      <Text>Reset Password Page</Text>
+      <Pressable style={shared.backButton} onPress={() => router.back()}>
+        <BackArrowIcon style={shared.backArrowIcon} />
+      </Pressable>
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+      <View style={shared.stepContent}>
+        <Text style={shared.title}>Reset Password</Text>
+        <View style={shared.divider} />
+        <Text style={shared.subtitle}>Choose a new password</Text>
 
-      <Button
-        title={loading ? 'Sending...' : 'Send Reset Link'}
-        onPress={handleReset}
-      />
+        <View style={shared.field}>
+          <Text style={shared.label}>New password</Text>
+          <View style={shared.passwordWrapper}>
+            <TextInput
+              style={[
+                shared.input,
+                shared.passwordInput,
+                newPasswordFocused && shared.inputFocused,
+              ]}
+              secureTextEntry={!showPassword}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              onFocus={() => setNewPasswordFocused(true)}
+              onBlur={() => setNewPasswordFocused(false)}
+            />
+            <Pressable
+              style={shared.eyeButton}
+              onPress={() => setShowPassword(prev => !prev)}
+            >
+              {showPassword ? (
+                <EyeIconOpen style={shared.eyeIcon} />
+              ) : (
+                <EyeIcon style={shared.eyeIcon} />
+              )}
+            </Pressable>
+          </View>
+        </View>
 
-      <Button
-        title="Back to Login"
-        onPress={() => router.push('/auth/login')}
-      />
+        <View style={shared.field}>
+          <Text style={shared.label}>Confirm password</Text>
+          <TextInput
+            style={[
+              shared.input,
+              confirmPasswordFocused && shared.inputFocused,
+            ]}
+            secureTextEntry={!showPassword}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            onFocus={() => setConfirmPasswordFocused(true)}
+            onBlur={() => setConfirmPasswordFocused(false)}
+          />
+        </View>
+
+        {error ? <Text style={shared.error}>{error}</Text> : null}
+
+        <Button
+          text={loading ? 'Updating...' : 'Update Password'}
+          disabled={!isFilled || loading}
+          onPress={handleUpdate}
+          containerStyle={{ width: '100%' }}
+          buttonStyle={submitButtonStyle(isFilled)}
+          titleStyle={submitButtonTitleStyle(isFilled)}
+        />
+      </View>
 
       <StatusBar style="auto" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
