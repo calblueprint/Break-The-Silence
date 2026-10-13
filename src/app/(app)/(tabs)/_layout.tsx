@@ -1,9 +1,11 @@
 import { StyleSheet, View } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import { Tabs, useRouter } from 'expo-router';
+import {
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  SimpleLineIcons,
+} from '@expo/vector-icons';
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -77,7 +79,11 @@ export default function TabsLayout() {
         options={{
           title: 'Toolkit',
           tabBarIcon: ({ color }) => (
-            <Icon name="toolbox-outline" size={35} color={color} />
+            <MaterialCommunityIcons
+              name="toolbox-outline"
+              size={35}
+              color={color}
+            />
           ),
         }}
       />

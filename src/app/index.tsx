@@ -10,7 +10,7 @@ export default function App() {
     <View style={styles.container}>
       <Logo />
       <Text>Break the Silence Against Domestic Violence</Text>
-      <Pressable onPress={() => router.push('/support')}>
+      <Pressable onPress={() => router.push('/auth/login')}>
         <Text style={styles.enterApp}>Enter App</Text>
       </Pressable>
 
