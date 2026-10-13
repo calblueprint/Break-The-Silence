@@ -214,7 +214,7 @@ async function main() {
   for (const f of features?.data ?? []) {
     if (/text|sms|messag/i.test(`${f.name} ${f.display_name}`)) {
       console.log(
-        `      feature "${f.display_name}": allowed=${f.allowed} used=${f.used}/${f.included}`,
+        `      feature "${f.display_name}": allowed=${f.allowed} included=${f.included} used=${f.used}`,
       );
     }
   }
