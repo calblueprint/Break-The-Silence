@@ -197,8 +197,8 @@ export interface PermittedFeature {
   display_name: string;
   description: string;
   allowed: boolean;
-  included: number;
-  used: number;
+  included: boolean;
+  used: boolean;
 }
 
 export type SubscriptionType =
