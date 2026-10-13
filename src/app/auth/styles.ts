@@ -137,8 +137,7 @@ export const loginStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white,
     alignItems: 'center',
-    paddingTop: 115,
-    paddingBottom: 241,
+    justifyContent: 'center',
     paddingHorizontal: 24,
     gap: 12,
   },
@@ -209,6 +208,12 @@ export const forgotPasswordStyles = StyleSheet.create({
     paddingTop: 70,
     paddingHorizontal: 41,
     gap: 12,
+  },
+  centerContent: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    paddingBottom: 80,
   },
   emailText: {
     fontFamily: 'Montserrat',
