@@ -11,7 +11,7 @@
 
 declare const process: { env: Record<string, string | undefined> };
 
-export const DEFAULT_BASE_URL = "https://api.talkroute.com/api";
+export const DEFAULT_BASE_URL = 'https://api.talkroute.com/api';
 
 export interface Pagination {
   count: number;
@@ -58,16 +58,20 @@ export class TalkrouteError extends Error {
     public readonly path: string,
     public readonly body: unknown,
   ) {
-    super(`Talkroute ${method} ${path} failed with HTTP ${status}: ${describeBody(body)}`);
-    this.name = "TalkrouteError";
+    super(
+      `Talkroute ${method} ${path} failed with HTTP ${status}: ${describeBody(body)}`,
+    );
+    this.name = 'TalkrouteError';
   }
 }
 
 function describeBody(body: unknown): string {
-  if (body && typeof body === "object" && "message" in body) {
+  if (body && typeof body === 'object' && 'message' in body) {
     return String((body as { message: unknown }).message);
   }
-  return typeof body === "string" ? body.slice(0, 200) : JSON.stringify(body)?.slice(0, 200) ?? "";
+  return typeof body === 'string'
+    ? body.slice(0, 200)
+    : (JSON.stringify(body)?.slice(0, 200) ?? '');
 }
 
 type Query = Record<string, string | number | boolean | undefined>;
@@ -82,17 +86,21 @@ export class TalkrouteClient {
     const apiKey = opts.apiKey ?? process.env.TALKROUTE_API_KEY;
     if (!apiKey) {
       throw new Error(
-        "Talkroute API key missing. Set TALKROUTE_API_KEY (format: tr_live_<64 hex chars>).",
+        'Talkroute API key missing. Set TALKROUTE_API_KEY (format: tr_live_<64 hex chars>).',
       );
     }
     this.apiKey = apiKey;
-    this.baseUrl = (opts.baseUrl ?? process.env.TALKROUTE_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
+    this.baseUrl = (
+      opts.baseUrl ??
+      process.env.TALKROUTE_BASE_URL ??
+      DEFAULT_BASE_URL
+    ).replace(/\/+$/, '');
     this.timeoutMs = opts.timeoutMs ?? 15_000;
     this.fetchImpl = opts.fetchImpl ?? fetch;
   }
 
   async request<T>(
-    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
     path: string,
     opts: { query?: Query; body?: unknown } = {},
   ): Promise<T> {
@@ -105,8 +113,10 @@ export class TalkrouteClient {
       method,
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
-        Accept: "application/json",
-        ...(opts.body !== undefined ? { "Content-Type": "application/json" } : {}),
+        Accept: 'application/json',
+        ...(opts.body !== undefined
+          ? { 'Content-Type': 'application/json' }
+          : {}),
       },
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
       signal: AbortSignal.timeout(this.timeoutMs),
@@ -126,39 +136,47 @@ export class TalkrouteClient {
   }
 
   get<T>(path: string, query?: Query) {
-    return this.request<T>("GET", path, { query });
+    return this.request<T>('GET', path, { query });
   }
   post<T>(path: string, body?: unknown) {
-    return this.request<T>("POST", path, { body });
+    return this.request<T>('POST', path, { body });
   }
   del<T>(path: string, query?: Query) {
-    return this.request<T>("DELETE", path, { query });
+    return this.request<T>('DELETE', path, { query });
   }
 
   // ---- Account / access checks -------------------------------------------
 
   /** Cheapest authenticated call; a 200 proves the key is valid. */
   getAccount() {
-    return this.get<{ data: Account }>("/v2/account");
+    return this.get<{ data: Account }>('/v2/account');
   }
   getPlan() {
-    return this.get<{ data: Plan }>("/v2/accounts/plan");
+    return this.get<{ data: Plan }>('/v2/accounts/plan');
   }
   getPermittedFeatures() {
-    return this.get<Paginated<PermittedFeature>>("/v2/accounts/permitted-features");
+    return this.get<Paginated<PermittedFeature>>(
+      '/v2/accounts/permitted-features',
+    );
   }
   /** Talkroute numbers; text conversations are keyed off these. */
   getVirtualNumbers() {
-    return this.get<Paginated<Record<string, unknown>>>("/v2/virtual-numbers");
+    return this.get<Paginated<Record<string, unknown>>>('/v2/virtual-numbers');
   }
 
   // ---- Webhook subscriptions ---------------------------------------------
 
   listSubscriptions(page?: number, pageSize?: number) {
-    return this.get<Paginated<Subscription>>("/v2/subscriptions", { page, pageSize });
+    return this.get<Paginated<Subscription>>('/v2/subscriptions', {
+      page,
+      pageSize,
+    });
   }
   createSubscription(type: SubscriptionType, hookUrl: string) {
-    return this.post<{ data: Subscription }>("/v2/subscriptions", { type, hookUrl });
+    return this.post<{ data: Subscription }>('/v2/subscriptions', {
+      type,
+      hookUrl,
+    });
   }
   deleteSubscription(id: string) {
     return this.del<void>(`/v2/subscriptions/${encodeURIComponent(id)}`);
@@ -202,10 +220,7 @@ export interface PermittedFeature {
 }
 
 export type SubscriptionType =
-  | "new_text_message"
-  | "new_call_record"
-  | "new_voicemail"
-  | "call_completed";
+  'new_text_message' | 'new_call_record' | 'new_voicemail' | 'call_completed';
 
 export interface Subscription {
   id: string;
