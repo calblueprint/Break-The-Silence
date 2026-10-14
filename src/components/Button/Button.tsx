@@ -25,7 +25,7 @@ function Button({
       containerStyle={containerStyle}
       disabledStyle={styles.disabledStyle}
       buttonStyle={[styles.buttonStyle, buttonStyle]}
-      disabledTitleStyle={[styles.disabledTitleStyle, titleStyle]}
+      disabledTitleStyle={styles.disabledTitleStyle}
       titleStyle={[styles.titleStyle, titleStyle]}
       title={text}
       disabled={disabled}
