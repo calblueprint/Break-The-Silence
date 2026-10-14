@@ -4,9 +4,9 @@ import colors from '@/styles/colors';
 export const LOGIN_FIELD_WIDTH = 318;
 
 const titleBase = {
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Bold',
   fontSize: 32,
-  fontWeight: 700,
+  color: colors.black,
 } as const;
 
 const backButtonBase = {
@@ -36,9 +36,10 @@ const dividerBase = {
 } as const;
 
 const subtitleBase = {
-  fontFamily: 'Montserrat',
+  fontFamily: 'Nunito Sans',
   fontSize: 14,
-  color: colors.textMuted,
+  fontWeight: '400',
+  color: colors.text,
 } as const;
 
 const fieldBase = {
@@ -129,7 +130,12 @@ export function submitButtonStyle(filled: boolean, extra?: object) {
 }
 
 export function submitButtonTitleStyle(filled: boolean) {
-  return { color: filled ? colors.white : colors.text };
+  return {
+    color: filled ? colors.white : colors.text,
+    fontFamily: 'Nunito Sans',
+    fontSize: 14,
+    fontWeight: '400',
+  } as const;
 }
 
 export const loginStyles = StyleSheet.create({
@@ -216,9 +222,8 @@ export const forgotPasswordStyles = StyleSheet.create({
     paddingBottom: 80,
   },
   emailText: {
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 22,
-    fontWeight: 700,
     color: colors.primaryDark,
   },
 });
@@ -231,6 +236,31 @@ export const resetPasswordStyles = StyleSheet.create({
     paddingTop: 70,
     paddingHorizontal: 41,
     gap: 12,
+  },
+});
+
+export const verifyCodeStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+    alignItems: 'flex-start',
+    paddingTop: 70,
+    paddingHorizontal: 41,
+    gap: 12,
+  },
+  centerContent: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    paddingBottom: 80,
+  },
+  codeInput: {
+    textAlign: 'center',
+    letterSpacing: 5,
+  },
+  failureButton: {
+    width: '100%',
+    marginTop: 64,
   },
 });
 
@@ -251,9 +281,8 @@ export const signupStyles = StyleSheet.create({
     color: colors.text,
   },
   securedText: {
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Italic',
     fontSize: 14,
-    fontStyle: 'italic',
     color: colors.textMuted,
     fontWeight: 400,
     lineHeight: 17,

@@ -6,7 +6,7 @@ export const PENDING_SIGNUP_EMAIL_KEY = 'pending-signup-email';
 
 export const signUp = async (email: string, password: string) => {
   const passwordRegex =
-    /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
   if (!passwordRegex.test(password)) {
     throw new Error(
@@ -86,6 +86,19 @@ export const resendSignupConfirmation = async (email: string) => {
   return data;
 };
 
+export const resendSignupCode = async (email: string) => {
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
 export const updatePassword = async (newPassword: string) => {
   const { data, error } = await supabase.auth.updateUser({
     password: newPassword,
@@ -108,6 +121,10 @@ export const verifySignupCode = async (email: string, otpCode: string) => {
   if (error) {
     throw new Error(error.message);
   }
+
+  await AsyncStorage.removeItem(PENDING_SIGNUP_EMAIL_KEY).catch(
+    () => undefined,
+  );
 
   return data;
 };
