@@ -164,7 +164,7 @@ export default function SignUpPage() {
         text={loading ? 'Creating account...' : 'Create an account'}
         disabled={!isFilled || loading}
         onPress={handleSignUp}
-        containerStyle={{ width: '100%' }}
+        containerStyle={shared.fullWidth}
         buttonStyle={submitButtonStyle(isFilled)}
         titleStyle={submitButtonTitleStyle(isFilled)}
       />

@@ -12,7 +12,6 @@ type ButtonProps = {
 };
 
 // A styled button component
-// Edit the styles in styles.tsx to change default styles
 function Button({
   disabled,
   onPress,
@@ -26,7 +25,7 @@ function Button({
       containerStyle={containerStyle}
       disabledStyle={styles.disabledStyle}
       buttonStyle={[styles.buttonStyle, buttonStyle]}
-      disabledTitleStyle={styles.disabledTitleStyle}
+      disabledTitleStyle={[styles.disabledTitleStyle, titleStyle]}
       titleStyle={[styles.titleStyle, titleStyle]}
       title={text}
       disabled={disabled}

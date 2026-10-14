@@ -1,11 +1,50 @@
 import { StyleSheet } from 'react-native';
 import colors from '@/styles/colors';
+import { typography } from '@/styles/typography';
 
 export const LOGIN_FIELD_WIDTH = 318;
 
+const fullWidthBase = {
+  width: '100%',
+} as const;
+
+const centeredScreenBase = {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+} as const;
+
+const whiteCenteredScreenBase = {
+  ...centeredScreenBase,
+  backgroundColor: colors.white,
+} as const;
+
+const topAlignedAuthScreenBase = {
+  flex: 1,
+  backgroundColor: colors.white,
+  alignItems: 'flex-start',
+  paddingTop: 70,
+  gap: 12,
+} as const;
+
+const authFormContainerBase = {
+  ...topAlignedAuthScreenBase,
+  paddingHorizontal: 41,
+} as const;
+
+const centerContentBase = {
+  flex: 1,
+  ...fullWidthBase,
+  justifyContent: 'center',
+  paddingBottom: 80,
+} as const;
+
+const centeredTextBase = {
+  textAlign: 'center',
+} as const;
+
 const titleBase = {
-  fontFamily: 'Montserrat-Bold',
-  fontSize: 32,
+  ...typography.h1,
   color: colors.black,
 } as const;
 
@@ -30,30 +69,25 @@ const stepContentBase = {
 } as const;
 
 const dividerBase = {
-  width: '100%',
+  ...fullWidthBase,
   height: 1,
   backgroundColor: colors.border,
 } as const;
 
 const subtitleBase = {
-  fontFamily: 'Nunito Sans',
-  fontSize: 14,
-  fontWeight: '400',
+  ...typography.p2,
   color: colors.text,
 } as const;
 
-const fieldBase = {
-  width: '100%',
-} as const;
-
 const labelBase = {
+  ...typography.p2,
   marginBottom: 4,
-  fontSize: 14,
   color: colors.text,
 } as const;
 
 const inputBase = {
-  width: '100%',
+  ...typography.p2,
+  ...fullWidthBase,
   height: 44,
   backgroundColor: colors.inputBackground,
   borderRadius: 10,
@@ -68,7 +102,7 @@ const inputFocusedBase = {
 } as const;
 
 const passwordWrapperBase = {
-  width: '100%',
+  ...fullWidthBase,
   justifyContent: 'center',
 } as const;
 
@@ -89,12 +123,22 @@ const eyeIconBase = {
 } as const;
 
 const errorBase = {
-  color: 'red',
+  ...typography.p2,
+  color: colors.error,
+} as const;
+
+const loginFieldBase = {
+  width: LOGIN_FIELD_WIDTH,
+} as const;
+
+const centeredLoginFieldBase = {
+  ...loginFieldBase,
+  alignSelf: 'center',
 } as const;
 
 // Shared base for the Confirm/Sign Up style submit buttons rendered
 const submitButtonBase = {
-  width: '100%',
+  ...fullWidthBase,
   height: 48,
   borderRadius: 10,
   marginTop: 8,
@@ -108,7 +152,7 @@ export const shared = StyleSheet.create({
   stepContent: stepContentBase,
   divider: dividerBase,
   subtitle: subtitleBase,
-  field: fieldBase,
+  field: fullWidthBase,
   label: labelBase,
   input: inputBase,
   inputFocused: inputFocusedBase,
@@ -117,6 +161,7 @@ export const shared = StyleSheet.create({
   eyeButton: eyeButtonBase,
   eyeIcon: eyeIconBase,
   error: errorBase,
+  fullWidth: fullWidthBase,
   submitButton: submitButtonBase,
 });
 
@@ -132,18 +177,86 @@ export function submitButtonStyle(filled: boolean, extra?: object) {
 export function submitButtonTitleStyle(filled: boolean) {
   return {
     color: filled ? colors.white : colors.text,
-    fontFamily: 'Nunito Sans',
-    fontSize: 14,
-    fontWeight: '400',
+    ...typography.p2,
   } as const;
 }
 
+export const authLandingStyles = StyleSheet.create({
+  container: whiteCenteredScreenBase,
+  tagline: {
+    ...typography.p2,
+    color: colors.text,
+  },
+  enterApp: {
+    ...typography.entryLink,
+    padding: 20,
+    color: colors.primary,
+  },
+});
+
+export const callbackStyles = StyleSheet.create({
+  container: {
+    ...centeredScreenBase,
+    padding: 24,
+  },
+  message: {
+    ...typography.p2,
+    ...centeredTextBase,
+    marginTop: 12,
+  },
+  error: {
+    ...errorBase,
+    ...centeredTextBase,
+  },
+  errorContent: {
+    ...fullWidthBase,
+    maxWidth: 420,
+    alignItems: 'center',
+    gap: 16,
+  },
+  input: {
+    ...typography.p2,
+    ...fullWidthBase,
+    borderWidth: 1,
+    borderColor: colors.inputBorder,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  success: {
+    ...typography.p2,
+    color: colors.success,
+    ...centeredTextBase,
+  },
+  button: fullWidthBase,
+});
+
+export const updatePasswordStyles = StyleSheet.create({
+  container: {
+    ...whiteCenteredScreenBase,
+    padding: 24,
+    gap: 12,
+  },
+  title: {
+    ...typography.h1,
+    color: colors.text,
+  },
+  message: {
+    ...typography.p2,
+    color: colors.text,
+  },
+  input: inputBase,
+  linkError: {
+    ...errorBase,
+    ...centeredTextBase,
+    padding: 20,
+  },
+});
+
 export const loginStyles = StyleSheet.create({
   container: {
-    flex: 1,
+    ...centeredScreenBase,
     backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 24,
     gap: 12,
   },
@@ -155,30 +268,26 @@ export const loginStyles = StyleSheet.create({
     marginBottom: 5,
   },
   signInText: {
-    width: LOGIN_FIELD_WIDTH,
-    alignSelf: 'center',
-    fontFamily: 'Montserrat',
-    fontSize: 32,
-    fontWeight: 400,
+    ...centeredLoginFieldBase,
+    ...typography.displayRegular,
     marginBottom: 9,
   },
   divider: {
     ...dividerBase,
-    width: LOGIN_FIELD_WIDTH,
-    alignSelf: 'center',
+    ...centeredLoginFieldBase,
     marginBottom: 9,
   },
   field: {
-    ...fieldBase,
+    ...fullWidthBase,
     alignItems: 'center',
   },
   label: {
     ...labelBase,
-    width: LOGIN_FIELD_WIDTH,
+    ...loginFieldBase,
   },
   input: {
     ...inputBase,
-    width: LOGIN_FIELD_WIDTH,
+    ...loginFieldBase,
     height: 40,
   },
   inputFocused: {
@@ -187,110 +296,75 @@ export const loginStyles = StyleSheet.create({
   },
   passwordWrapper: {
     ...passwordWrapperBase,
-    width: LOGIN_FIELD_WIDTH,
+    ...loginFieldBase,
   },
   eyeButton: {
     ...eyeButtonBase,
     height: 40,
   },
   forgotPasswordRow: {
-    width: LOGIN_FIELD_WIDTH,
-    alignSelf: 'center',
+    ...centeredLoginFieldBase,
     alignItems: 'flex-end',
   },
+  linkText: {
+    ...typography.p2,
+    color: colors.text,
+  },
   signUpRow: {
+    ...typography.p2,
     alignSelf: 'center',
   },
   signUpLink: {
+    ...typography.p2,
     color: colors.primary,
   },
+  submitButton: loginFieldBase,
 });
 
 export const forgotPasswordStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 41,
-    gap: 12,
-  },
-  centerContent: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    paddingBottom: 80,
-  },
+  container: authFormContainerBase,
+  centerContent: centerContentBase,
   emailText: {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 22,
+    ...typography.authEmail,
     color: colors.primaryDark,
   },
 });
 
 export const resetPasswordStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 41,
-    gap: 12,
-  },
+  container: authFormContainerBase,
 });
 
 export const verifyCodeStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
-    paddingHorizontal: 41,
-    gap: 12,
-  },
-  centerContent: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    paddingBottom: 80,
-  },
+  container: authFormContainerBase,
+  centerContent: centerContentBase,
   codeInput: {
     textAlign: 'center',
     letterSpacing: 5,
   },
   failureButton: {
-    width: '100%',
+    ...fullWidthBase,
     marginTop: 64,
   },
 });
 
 export const signupStyles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: colors.white,
-    alignItems: 'flex-start',
-    paddingTop: 70,
+    ...topAlignedAuthScreenBase,
     paddingHorizontal: 24,
     paddingBottom: 48,
-    gap: 12,
   },
   subtitle: {
-    fontFamily: 'Montserrat',
-    fontSize: 17,
-    fontWeight: 400,
+    ...typography.authSubtitle,
     color: colors.text,
   },
   securedText: {
-    fontFamily: 'Montserrat-Italic',
-    fontSize: 14,
+    ...typography.authSecureNote,
     color: colors.textMuted,
-    fontWeight: 400,
-    lineHeight: 17,
     marginBottom: 8,
   },
   row: {
     flexDirection: 'row',
-    width: '100%',
+    ...fullWidthBase,
     gap: 12,
   },
   halfField: {
@@ -301,9 +375,8 @@ export const signupStyles = StyleSheet.create({
     height: 40,
   },
   message: {
-    fontFamily: 'Montserrat',
-    fontSize: 14,
+    ...typography.montserratBody,
     color: colors.textMuted,
-    textAlign: 'center',
+    ...centeredTextBase,
   },
 });

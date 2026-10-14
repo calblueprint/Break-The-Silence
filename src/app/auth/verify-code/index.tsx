@@ -150,7 +150,7 @@ export default function VerifyCodePage() {
               disabled={
                 loading || resending || code.length !== 6 || !signupEmail
               }
-              containerStyle={{ width: '100%' }}
+              containerStyle={shared.fullWidth}
               buttonStyle={submitButtonStyle(code.length === 6)}
               titleStyle={submitButtonTitleStyle(code.length === 6)}
             />
@@ -159,7 +159,7 @@ export default function VerifyCodePage() {
               text={resending ? 'Resending...' : 'Resend Code'}
               onPress={handleResend}
               disabled={loading || resending || !signupEmail}
-              containerStyle={{ width: '100%' }}
+              containerStyle={shared.fullWidth}
               buttonStyle={submitButtonStyle(Boolean(signupEmail))}
               titleStyle={submitButtonTitleStyle(Boolean(signupEmail))}
             />
