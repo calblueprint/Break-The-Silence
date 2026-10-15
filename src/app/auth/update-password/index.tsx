@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
 import { signOut, updatePassword } from '../../../../api/supabase/auth';
 import supabase from '../../../../api/supabase/client';
+import {
+  shared,
+  updatePasswordStyles as styles,
+  submitButtonStyle,
+  submitButtonTitleStyle,
+} from '../styles';
 
 export default function UpdatePassword() {
   const params = useLocalSearchParams<{
@@ -41,11 +48,9 @@ export default function UpdatePassword() {
     return (
       <View style={styles.container}>
         {linkError ? (
-          <Text style={{ color: 'red', textAlign: 'center', padding: 20 }}>
-            {linkError}
-          </Text>
+          <Text style={styles.linkError}>{linkError}</Text>
         ) : (
-          <Text>Verifying Link...</Text>
+          <Text style={styles.message}>Verifying Link...</Text>
         )}
       </View>
     );
@@ -86,8 +91,9 @@ export default function UpdatePassword() {
   return (
     <View style={styles.container}>
       <Logo />
-      <Text>Enter New Password</Text>
+      <Text style={styles.title}>Enter New Password</Text>
       <TextInput
+        style={styles.input}
         value={password}
         onChangeText={setPassword}
         placeholder="New Password"
@@ -95,18 +101,13 @@ export default function UpdatePassword() {
         autoCapitalize="none"
       />
       <Button
-        title={loading ? 'Updating...' : 'Save Password'}
+        text={loading ? 'Updating...' : 'Save Password'}
+        disabled={!password || loading}
         onPress={handleUpdatePassword}
+        containerStyle={shared.fullWidth}
+        buttonStyle={submitButtonStyle(Boolean(password))}
+        titleStyle={submitButtonTitleStyle(Boolean(password))}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

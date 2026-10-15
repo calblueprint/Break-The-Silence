@@ -1,41 +1,76 @@
-import { StyleSheet, TextStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-type TypographyStyles = {
-  h1: TextStyle;
-  h2: TextStyle;
-  h3: TextStyle;
-  h4: TextStyle;
-  p1: TextStyle;
-  p2: TextStyle;
-  p3: TextStyle;
-};
+export const fontFamilies = {
+  montserrat: 'Montserrat',
+  montserratBold: 'Montserrat-Bold',
+  montserratItalic: 'Montserrat-Italic',
+  nunitoSans: 'Nunito Sans',
+} as const;
 
-// Add more components for different text elements if needed,
-// or edit current component props according to the project's design system
-export const typography: TypographyStyles = StyleSheet.create({
+const montserratRegular = {
+  fontFamily: fontFamilies.montserrat,
+} as const;
+
+const montserratBold = {
+  fontFamily: fontFamilies.montserratBold,
+} as const;
+
+const nunitoSansRegular = {
+  fontFamily: fontFamilies.nunitoSans,
+} as const;
+
+export const typography = StyleSheet.create({
   h1: {
+    ...montserratBold,
     fontSize: 32,
-    fontWeight: 'bold',
   },
   h2: {
+    ...montserratBold,
     fontSize: 28,
-    fontWeight: 'bold',
   },
   h3: {
+    ...montserratBold,
     fontSize: 24,
-    fontWeight: 'bold',
   },
   h4: {
+    ...montserratBold,
     fontSize: 20,
-    fontWeight: 'bold',
   },
   p1: {
+    ...nunitoSansRegular,
     fontSize: 16,
   },
   p2: {
+    ...nunitoSansRegular,
     fontSize: 14,
   },
   p3: {
+    ...nunitoSansRegular,
     fontSize: 12,
+  },
+  displayRegular: {
+    ...montserratRegular,
+    fontSize: 32,
+  },
+  authSubtitle: {
+    ...montserratRegular,
+    fontSize: 17,
+  },
+  authEmail: {
+    ...montserratBold,
+    fontSize: 22,
+  },
+  authSecureNote: {
+    fontFamily: fontFamilies.montserratItalic,
+    fontSize: 14,
+    lineHeight: 17,
+  },
+  montserratBody: {
+    ...montserratRegular,
+    fontSize: 14,
+  },
+  entryLink: {
+    ...montserratBold,
+    fontSize: 18,
   },
 });

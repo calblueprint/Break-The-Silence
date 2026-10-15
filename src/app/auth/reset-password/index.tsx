@@ -110,7 +110,7 @@ export default function ResetPasswordPage() {
           text={loading ? 'Updating...' : 'Update Password'}
           disabled={!isFilled || loading}
           onPress={handleUpdate}
-          containerStyle={{ width: '100%' }}
+          containerStyle={shared.fullWidth}
           buttonStyle={submitButtonStyle(isFilled)}
           titleStyle={submitButtonTitleStyle(isFilled)}
         />

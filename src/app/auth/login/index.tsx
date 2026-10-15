@@ -8,7 +8,6 @@ import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
 import BTSADVLogo from '~/assets/btsdav-logo.png';
 import { signIn } from '../../../../api/supabase/auth';
 import {
-  LOGIN_FIELD_WIDTH,
   shared,
   loginStyles as styles,
   submitButtonStyle,
@@ -93,7 +92,7 @@ export default function LoginPage() {
 
       <View style={styles.forgotPasswordRow}>
         <Link href="/auth/forgot-password">
-          <Text>Forgot Password</Text>
+          <Text style={styles.linkText}>Forgot Password</Text>
         </Link>
       </View>
 
@@ -102,9 +101,7 @@ export default function LoginPage() {
           text={loading ? 'Logging In...' : 'Log In'}
           disabled={!isFilled || loading}
           onPress={handleSignIn}
-          buttonStyle={submitButtonStyle(isFilled, {
-            width: LOGIN_FIELD_WIDTH,
-          })}
+          buttonStyle={submitButtonStyle(isFilled, styles.submitButton)}
           titleStyle={submitButtonTitleStyle(isFilled)}
         />
       </View>

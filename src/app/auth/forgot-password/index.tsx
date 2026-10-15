@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
               text="Confirm"
               disabled={!isFilled}
               onPress={handleContinue}
-              containerStyle={{ width: '100%' }}
+              containerStyle={shared.fullWidth}
               buttonStyle={submitButtonStyle(isFilled)}
               titleStyle={submitButtonTitleStyle(isFilled)}
             />
@@ -111,7 +111,7 @@ export default function ForgotPasswordPage() {
               text={loading ? 'Sending...' : 'Confirm'}
               disabled={loading}
               onPress={handleConfirm}
-              containerStyle={{ width: '100%' }}
+              containerStyle={shared.fullWidth}
               buttonStyle={submitButtonStyle(true)}
               titleStyle={submitButtonTitleStyle(true)}
             />
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
               text="Back to Sign In"
               disabled={false}
               onPress={() => router.replace('/auth/login')}
-              containerStyle={{ width: '100%' }}
+              containerStyle={shared.fullWidth}
               buttonStyle={submitButtonStyle(true)}
               titleStyle={submitButtonTitleStyle(true)}
             />

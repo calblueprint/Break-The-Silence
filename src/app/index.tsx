@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
+import { authLandingStyles as styles } from './auth/styles';
 
 export default function App() {
   const router = useRouter();
@@ -9,7 +10,9 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Logo />
-      <Text>Break the Silence Against Domestic Violence</Text>
+      <Text style={styles.tagline}>
+        Break the Silence Against Domestic Violence
+      </Text>
       <Pressable onPress={() => router.push('/auth/login')}>
         <Text style={styles.enterApp}>Enter App</Text>
       </Pressable>
@@ -18,18 +21,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  enterApp: {
-    padding: 20,
-    color: 'purple',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-});

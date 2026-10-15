@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '@/components/Button/Button';
@@ -14,6 +8,7 @@ import {
   resendSignupConfirmation,
 } from '../../../../api/supabase/auth';
 import supabase from '../../../../api/supabase/client';
+import { callbackStyles as styles, submitButtonTitleStyle } from '../styles';
 
 export default function AuthCallbackPage() {
   const params = useLocalSearchParams<{
@@ -149,6 +144,7 @@ export default function AuthCallbackPage() {
             disabled={loadingEmail || !email.trim() || resending}
             onPress={handleResend}
             containerStyle={styles.button}
+            titleStyle={submitButtonTitleStyle(true)}
           />
         </View>
       ) : (
@@ -160,41 +156,3 @@ export default function AuthCallbackPage() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  message: {
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center',
-  },
-  errorContent: {
-    width: '100%',
-    maxWidth: 420,
-    alignItems: 'center',
-    gap: 16,
-  },
-  input: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  success: {
-    color: 'green',
-    textAlign: 'center',
-  },
-  button: {
-    width: '100%',
-  },
-});
