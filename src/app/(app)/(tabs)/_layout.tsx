@@ -114,9 +114,7 @@ export default function TabsLayout() {
           href: null,
         }}
       />
-       
     </Tabs>
-    
   );
 }
 
