@@ -1,10 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
 import { signOut } from '../../../../../api/supabase/auth';
-import { Link } from 'expo-router';
-
 
 export default function App() {
   return (
