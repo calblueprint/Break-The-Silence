@@ -45,6 +45,7 @@ export default function TabsLayout() {
         name="journal"
         options={{
           title: 'Journal',
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="journal-outline" size={31} color={color} />
           ),
@@ -98,12 +99,6 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="documents/upload"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="journal/new_entry"
         options={{
           href: null,
         }}
