@@ -3,12 +3,15 @@ import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
 import { signOut } from '../../../../../api/supabase/auth';
+import { Link } from 'expo-router';
+
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Logo />
       <Text>Profile</Text>
+      <Link href="home">Home</Link>
       <Button
         text="Sign Out"
         disabled={false}

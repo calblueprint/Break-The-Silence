@@ -32,6 +32,12 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="home"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="support"
         options={{
           title: 'Support',
@@ -108,7 +114,9 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+       
     </Tabs>
+    
   );
 }
 
