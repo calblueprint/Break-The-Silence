@@ -14,7 +14,6 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarStyle: {
           height: 85,
-          // paddingBottom: 10,
           paddingBottom: 0,
         },
         tabBarActiveTintColor: '#3524C4',
@@ -31,6 +30,12 @@ export default function TabsLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="home"
+        options={{
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="support"
         options={{
