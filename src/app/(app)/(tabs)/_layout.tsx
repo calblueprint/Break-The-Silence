@@ -113,12 +113,6 @@ export default function TabsLayout() {
           href: null,
         }}
       />
-      <Tabs.Screen
-        name="home/searchData"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }
