@@ -1,29 +1,12 @@
-import type { ReactNode } from 'react';
-import { Image, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Tabs } from 'expo-router';
-import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
-import SafeExitButton from '@/components/SafeExitButton';
-import colors from '@/styles/colors';
-import styles from '@/styles/tabNavigationStyles';
-import HouseIcon from '~/assets/House.png';
-import JournalIcon from '~/assets/journal.png';
-import ToolkitIcon from '~/assets/toolkit.png';
-
-// Puts a soft circle behind the icon of the open tab
-function TabIcon({
-  focused,
-  children,
-}: {
-  focused: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <View style={[styles.tabIcon, focused && styles.tabIconFocused]}>
-      {children}
-    </View>
-  );
-}
+import { StyleSheet, View } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import {
+  Feather,
+  Ionicons,
+  //MaterialCommunityIcons,
+  SimpleLineIcons,
+} from '@expo/vector-icons';
+import styles from '@/components/Button/styles';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -89,14 +72,17 @@ export default function TabsLayout() {
           name="documents"
           options={{
             title: 'Toolkit',
+          tabBarButton: () => <View style={{ flex: 1 }} />,
+          /*
             tabBarIcon: ({ color, focused }) => (
               <TabIcon focused={focused}>
                 <Image
                   source={ToolkitIcon}
                   style={[styles.icon, { tintColor: color }]}
                 />
+            
               </TabIcon>
-            ),
+            ),*/
           }}
         />
         <Tabs.Screen
