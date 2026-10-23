@@ -72,6 +72,8 @@ export const journalListStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 8,
     paddingBottom: 16,
+    // Leaves room for the floating Safe Exit button in the top right
+    paddingRight: 56,
   },
   titleText: {
     ...typography.h2,
@@ -147,7 +149,10 @@ export const newEntryStyles = StyleSheet.create({
     ...headerBarContainerBase,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    // Leaves room for the floating Safe Exit button in the top right
+    paddingRight: 72,
+    // Tall enough that the bottom border sits below the Safe Exit button
+    minHeight: 56,
   },
   cancelText: headerTextBase,
   saveText: {
@@ -179,17 +184,7 @@ export const newEntryStyles = StyleSheet.create({
   },
   toolbarContainer: {
     ...toolbarRowContainerBase,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingVertical: 8,
-  },
-  safeExitButtonContainer: {
-    width: 36,
-    aspectRatio: 1,
-    borderRadius: 18,
-    backgroundColor: colors.safeExit,
-    alignItems: 'center',
-    justifyContent: 'center',
+    minHeight: 52,
   },
 });
 
@@ -199,7 +194,8 @@ export const entryDetailStyles = StyleSheet.create({
   headerContainer: {
     ...headerBarContainerBase,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    // Tall enough that the bottom border sits below the Safe Exit button
+    minHeight: 56,
   },
   backButtonContainer: {
     flexDirection: 'row',

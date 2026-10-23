@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import ConfirmModal from '@/components/journal/ConfirmModal';
 import { newEntryStyles as styles } from '@/components/journal/styles';
 import { useJournal } from '@/context/JournalContext';
@@ -128,17 +127,8 @@ export default function NewEntry() {
           />
         </ScrollView>
 
-        <View style={styles.toolbarContainer}>
-          {/* Safe Exit: the keyboard hides the tab bar's button while typing */}
-          <Pressable
-            onPress={() => router.replace('/')}
-            hitSlop={8}
-            style={styles.safeExitButtonContainer}
-            accessibilityLabel="Safe exit"
-          >
-            <Feather name="x" size={22} color={colors.white} />
-          </Pressable>
-        </View>
+        {/* Empty for now; the camera button for photos goes here */}
+        <View style={styles.toolbarContainer} />
       </KeyboardAvoidingView>
 
       <ConfirmModal
