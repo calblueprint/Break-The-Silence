@@ -1,9 +1,14 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { entryDetailStyles as styles } from '@/components/journal/styles';
-import TagPill from '@/components/journal/TagPill';
 import { useJournal } from '@/context/JournalContext';
 import colors from '@/styles/colors';
 import { formatShortDate, formatTime } from '@/utils/journalDates';
@@ -12,7 +17,7 @@ import CalendarIcon from '~/assets/CgCalendarDates.svg';
 export default function JournalEntryDetail() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getEntry } = useJournal();
+  const { getEntry, loading } = useJournal();
   const entry = getEntry(id);
 
   const goBack = () => {
@@ -49,8 +54,11 @@ export default function JournalEntryDetail() {
           <Text style={styles.titleText}>{entry.title || 'Untitled'}</Text>
           <View style={styles.divider} />
           <Text style={styles.bodyText}>{entry.content}</Text>
-          {entry.tag && <TagPill tag={entry.tag} />}
         </ScrollView>
+      ) : loading ? (
+        <View style={styles.notFoundContainer}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
       ) : (
         <View style={styles.notFoundContainer}>
           <Text style={styles.notFoundText}>

@@ -177,33 +177,10 @@ export const newEntryStyles = StyleSheet.create({
   contentPlaceholderText: {
     fontFamily: fontFamilies.montserratItalic,
   },
-  tagOptionsContainer: {
-    ...toolbarRowContainerBase,
-    columnGap: 8,
-    paddingVertical: 10,
-  },
-  tagOptionContainer: {
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-  },
-  tagOptionSelectedContainer: {
-    borderColor: colors.primary,
-    backgroundColor: colors.supportBackground,
-  },
-  tagOptionText: {
-    ...typography.p2,
-    color: colors.text,
-  },
-  tagOptionSelectedText: {
-    color: colors.primary,
-  },
   toolbarContainer: {
     ...toolbarRowContainerBase,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     paddingVertical: 8,
   },
   safeExitButtonContainer: {
@@ -277,17 +254,6 @@ export const entryCardStyles = StyleSheet.create({
     ...typography.p2,
     color: colors.text,
   },
-});
-
-// Incident / Support tag
-export const tagPillStyles = StyleSheet.create({
-  pillContainer: {
-    alignSelf: 'flex-start',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 2,
-  },
-  labelText: typography.p3,
 });
 
 // Save / Discard confirmation popup

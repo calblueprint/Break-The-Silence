@@ -4,15 +4,31 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
-import mockJournalEntries from '@/data/mockJournalEntries';
+import {
+  createDiaryEntry,
+  deleteDiaryEntry,
+  fetchDiaryEntries,
+  updateDiaryEntry,
+} from '~/api/supabase/queries/diary';
 
 interface JournalContextValue {
   // Sorted newest first
   entries: JournalEntry[];
-  addEntry: (entry: NewJournalEntry) => JournalEntry;
+  loading: boolean;
+  // Set when loading entries fails; cleared by a successful refresh
+  error: string | null;
+  refresh: () => Promise<void>;
+  // These throw if the Supabase request fails so screens can show an error
+  addEntry: (entry: NewJournalEntry) => Promise<JournalEntry>;
+  updateEntry: (
+    id: string,
+    updates: Partial<NewJournalEntry>,
+  ) => Promise<JournalEntry>;
+  deleteEntry: (id: string) => Promise<void>;
   getEntry: (id: string) => JournalEntry | undefined;
 }
 
@@ -22,22 +38,53 @@ interface JournalProviderProps {
 
 const JournalContext = createContext<JournalContextValue | null>(null);
 
-// Holds journal entries in local state for now. When Supabase is connected,
-// swap the initial state for a fetch and have addEntry insert a row; screens
-// only depend on this interface so they should not need to change.
+// Loads the signed-in user's Diary entries from Supabase and keeps them in
+// state so screens can read them synchronously after the first load.
 export function JournalProvider({ children }: JournalProviderProps) {
-  const [entries, setEntries] = useState<JournalEntry[]>(() =>
-    sortNewestFirst(mockJournalEntries),
-  );
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const addEntry = useCallback((entry: NewJournalEntry) => {
-    const created: JournalEntry = {
-      ...entry,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-    };
+  const loadEntries = useCallback(async () => {
+    try {
+      setEntries(await fetchDiaryEntries());
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load entries.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    await loadEntries();
+  }, [loadEntries]);
+
+  const addEntry = useCallback(async (entry: NewJournalEntry) => {
+    const created = await createDiaryEntry(entry);
     setEntries(prev => sortNewestFirst([created, ...prev]));
     return created;
+  }, []);
+
+  const updateEntry = useCallback(
+    async (id: string, updates: Partial<NewJournalEntry>) => {
+      const updated = await updateDiaryEntry(id, updates);
+      setEntries(prev =>
+        prev.map(entry => (entry.id === id ? updated : entry)),
+      );
+      return updated;
+    },
+    [],
+  );
+
+  const deleteEntry = useCallback(async (id: string) => {
+    await deleteDiaryEntry(id);
+    setEntries(prev => prev.filter(entry => entry.id !== id));
   }, []);
 
   const getEntry = useCallback(
@@ -46,8 +93,26 @@ export function JournalProvider({ children }: JournalProviderProps) {
   );
 
   const value = useMemo(
-    () => ({ entries, addEntry, getEntry }),
-    [entries, addEntry, getEntry],
+    () => ({
+      entries,
+      loading,
+      error,
+      refresh,
+      addEntry,
+      updateEntry,
+      deleteEntry,
+      getEntry,
+    }),
+    [
+      entries,
+      loading,
+      error,
+      refresh,
+      addEntry,
+      updateEntry,
+      deleteEntry,
+      getEntry,
+    ],
   );
 
   return (

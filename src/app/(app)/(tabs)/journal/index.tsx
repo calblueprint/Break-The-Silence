@@ -1,6 +1,7 @@
 import type { JournalEntry } from '@/types/journal';
 import { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   SectionList,
@@ -41,7 +42,7 @@ function groupByMonth(entries: JournalEntry[]): MonthSection[] {
 
 export default function Journal() {
   const router = useRouter();
-  const { entries } = useJournal();
+  const { entries, loading, error, refresh } = useJournal();
   const [search, setSearch] = useState('');
 
   const sections = useMemo(() => {
@@ -71,7 +72,25 @@ export default function Journal() {
         </Pressable>
       </View>
 
-      {entries.length === 0 ? (
+      {entries.length === 0 && loading ? (
+        <View style={styles.emptyStateContainer}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : entries.length === 0 && error ? (
+        <View style={styles.emptyStateContainer}>
+          <Feather name="alert-circle" size={48} color={colors.textMuted} />
+          <Text style={styles.emptyTitleText}>Could not load entries</Text>
+          <Text style={styles.emptyMessageText}>
+            Please check your connection and try again.
+          </Text>
+          <Button
+            disabled={false}
+            text="Try again"
+            onPress={refresh}
+            containerStyle={styles.emptyButtonContainer}
+          />
+        </View>
+      ) : entries.length === 0 ? (
         <View style={styles.emptyStateContainer}>
           <Feather name="book-open" size={48} color={colors.textMuted} />
           <Text style={styles.emptyTitleText}>No entries yet</Text>
@@ -106,6 +125,8 @@ export default function Journal() {
             contentContainerStyle={styles.listContentContainer}
             keyboardShouldPersistTaps="handled"
             stickySectionHeadersEnabled={false}
+            refreshing={loading}
+            onRefresh={refresh}
             renderSectionHeader={({ section }) => (
               <Text style={styles.sectionHeaderText}>
                 {section.title.toUpperCase()}

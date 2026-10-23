@@ -2,7 +2,6 @@ import type { JournalEntry } from '@/types/journal';
 import { Pressable, Text } from 'react-native';
 import { formatEntryDate } from '@/utils/journalDates';
 import { entryCardStyles as styles } from './styles';
-import TagPill from './TagPill';
 
 interface EntryCardProps {
   entry: JournalEntry;
@@ -27,7 +26,6 @@ export default function EntryCard({ entry, onPress }: EntryCardProps) {
       <Text style={styles.previewText} numberOfLines={2}>
         {entry.content}
       </Text>
-      {entry.tag && <TagPill tag={entry.tag} />}
     </Pressable>
   );
 }
