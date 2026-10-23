@@ -1,6 +1,6 @@
-import type { JournalTag } from '@/types/journal';
 import { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -14,13 +14,10 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import ConfirmModal from '@/components/journal/ConfirmModal';
 import { newEntryStyles as styles } from '@/components/journal/styles';
-import TagPill, { TAG_LABELS } from '@/components/journal/TagPill';
 import { useJournal } from '@/context/JournalContext';
 import colors from '@/styles/colors';
 import { formatShortDate, formatTime } from '@/utils/journalDates';
 import CalendarIcon from '~/assets/CgCalendarDates.svg';
-
-const TAG_OPTIONS = Object.keys(TAG_LABELS) as JournalTag[];
 
 export default function NewEntry() {
   const router = useRouter();
@@ -28,12 +25,11 @@ export default function NewEntry() {
   const [now] = useState(() => new Date());
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [tag, setTag] = useState<JournalTag | null>(null);
-  const [showTagOptions, setShowTagOptions] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [modal, setModal] = useState<'save' | 'discard' | null>(null);
 
   const canSave = content.trim().length > 0;
-  const hasChanges = title.trim().length > 0 || canSave || tag !== null;
+  const hasChanges = title.trim().length > 0 || canSave;
 
   const leave = () => {
     if (router.canGoBack()) {
@@ -51,19 +47,28 @@ export default function NewEntry() {
     }
   };
 
-  const handleConfirmSave = () => {
-    addEntry({ title: title.trim(), content: content.trim(), tag });
-    setModal(null);
-    leave();
+  const handleConfirmSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await addEntry({ title: title.trim(), content: content.trim() });
+      setModal(null);
+      leave();
+    } catch {
+      // Keep the draft on screen so nothing is lost
+      setModal(null);
+      Alert.alert(
+        'Could not save entry',
+        'Please check your connection and try again.',
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleConfirmDiscard = () => {
     setModal(null);
     leave();
-  };
-
-  const toggleTag = (option: JournalTag) => {
-    setTag(current => (current === option ? null : option));
   };
 
   return (
@@ -121,44 +126,9 @@ export default function NewEntry() {
             scrollEnabled={false}
             autoFocus
           />
-          {tag && <TagPill tag={tag} />}
         </ScrollView>
 
-        {showTagOptions && (
-          <View style={styles.tagOptionsContainer}>
-            {TAG_OPTIONS.map(option => (
-              <Pressable
-                key={option}
-                onPress={() => toggleTag(option)}
-                style={[
-                  styles.tagOptionContainer,
-                  tag === option && styles.tagOptionSelectedContainer,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.tagOptionText,
-                    tag === option && styles.tagOptionSelectedText,
-                  ]}
-                >
-                  {TAG_LABELS[option]}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
         <View style={styles.toolbarContainer}>
-          <Pressable
-            onPress={() => setShowTagOptions(shown => !shown)}
-            hitSlop={12}
-            accessibilityLabel="Add a tag"
-          >
-            <Feather
-              name="tag"
-              size={22}
-              color={showTagOptions ? colors.primary : colors.text}
-            />
-          </Pressable>
           {/* Safe Exit: the keyboard hides the tab bar's button while typing */}
           <Pressable
             onPress={() => router.replace('/')}

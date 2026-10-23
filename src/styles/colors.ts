@@ -12,8 +12,6 @@ const colors = {
   buttonBackground: '#E2E8F0',
   error: '#FF0000',
   success: '#008000',
-  incidentBackground: '#FEE2E2',
-  supportBackground: '#F1E3F7',
   overlay: 'rgba(0, 0, 0, 0.25)',
   safeExit: '#3E24C4',
 };
