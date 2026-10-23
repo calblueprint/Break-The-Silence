@@ -3,7 +3,7 @@ import { Tabs, useRouter } from 'expo-router';
 import {
   Feather,
   Ionicons,
-  MaterialCommunityIcons,
+  //MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
 
@@ -78,13 +78,16 @@ export default function TabsLayout() {
         name="documents"
         options={{
           title: 'Toolkit',
+          tabBarButton: () => <View style={{ flex: 1 }} />,
+          /*
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="toolbox-outline"
               size={35}
               color={color}
             />
-          ),
+            
+          ),*/
         }}
       />
       <Tabs.Screen
