@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import colors from '../../styles/colors';
 
 export default StyleSheet.create({
   'result-row': {
@@ -9,8 +10,8 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 18,
     paddingVertical: 12,
-    backgroundColor: '#F1F5F9',
-    borderBottomColor: '#E3E2EA',
+    backgroundColor: colors.inputBackground,
+    borderBottomColor: colors.border,
     borderBottomWidth: 1,
   },
   'result-text': {
@@ -18,19 +19,19 @@ export default StyleSheet.create({
     marginRight: 16,
   },
   title: {
-    color: '#263547',
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },
   'matched-content': {
     marginTop: 4,
-    color: 'red',
+    color: colors.error,
     fontSize: 13,
     textDecorationLine: 'underline',
   },
   'red-text': {
     marginTop: 4,
-    color: '#74849A',
+    color: colors.textMuted,
     textDecorationLine: 'none',
     fontSize: 13,
   },

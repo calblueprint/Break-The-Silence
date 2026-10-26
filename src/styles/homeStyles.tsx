@@ -19,18 +19,18 @@ export default StyleSheet.create({
     gap: 16,
     paddingHorizontal: 22,
     borderRadius: 28,
-    backgroundColor: '#F1F5F9',
-    borderColor: '#F1F5F9',
+    backgroundColor: colors.inputBackground,
+    borderColor: colors.inputBackground,
   },
   'search-bar-with-results': {
-    borderBottomColor: '#D9DDE0',
+    borderBottomColor: colors.border,
     borderWidth: 1,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     borderBottomWidth: 1,
   },
   'linked-text': {
-    color: 'blue',
+    color: colors.primary,
     fontSize: 16,
   },
   'indented-text': {
@@ -46,10 +46,10 @@ export default StyleSheet.create({
   'recommended-boxes': {
     width: 150,
     aspectRatio: 1,
-    backgroundColor: 'gray',
+    backgroundColor: colors.buttonBackground,
   },
   'assessment-box': {
-    backgroundColor: 'gray',
+    backgroundColor: colors.buttonBackground,
     width: '100%',
     height: 180,
   },
@@ -73,11 +73,11 @@ export default StyleSheet.create({
     minWidth: 0,
     paddingVertical: 10,
     fontSize: 18,
-    color: '#263547',
+    color: colors.text,
   },
   'no-results': {
     paddingHorizontal: 18,
     paddingVertical: 20,
-    color: '#74849A',
+    color: colors.textMuted,
   },
 });

@@ -1,10 +1,6 @@
-interface SearchItem {
-  title: string;
-  keywords: string[];
-  route: string;
-}
+import type { SearchResultItem } from '../components/SearchResultRow/searchResultRow';
 
-export const searchableItemsList: SearchItem[] = [
+export const searchableItemsList: SearchResultItem[] = [
   {
     title: 'Support Line',
     keywords: ['support', 'talk', 'help', 'someone', 'message', 'text'],
