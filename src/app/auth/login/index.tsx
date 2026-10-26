@@ -31,7 +31,7 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password);
-      router.replace('/support');
+      router.replace('/(app)/(tabs)/home');
     } catch (err) {
       setError(
         err instanceof Error
