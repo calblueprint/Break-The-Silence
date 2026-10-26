@@ -10,7 +10,7 @@ export default function App() {
     <View style={styles.container}>
       <Logo />
       <Text>Profile</Text>
-      <Link href="home">Home</Link>
+      <Link href="/(app)/(tabs)/home">Home</Link>
       <Button
         text="Sign Out"
         disabled={false}

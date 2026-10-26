@@ -33,7 +33,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          href: null,
+          title: 'Home',
+          tabBarItemStyle: {
+            display: 'none',
+          },
         }}
       />
       <Tabs.Screen

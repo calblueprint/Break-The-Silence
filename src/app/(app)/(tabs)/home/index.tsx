@@ -120,7 +120,7 @@ export default function App() {
           <Link style={styles['linked-text']} href="support/support-line">
             Talk to Someone
           </Link>
-          <Link style={styles['linked-text']} href="journal/new_entry">
+          <Link style={styles['linked-text']} href="journal">
             I Want to Write Something Down
           </Link>
         </View>

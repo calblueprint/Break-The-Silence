@@ -97,7 +97,7 @@ export default function AuthCallbackPage() {
         await AsyncStorage.removeItem(PENDING_SIGNUP_EMAIL_KEY).catch(
           () => undefined,
         );
-        router.replace('/(app)/(tabs)/support');
+        router.replace('/(app)/(tabs)/home');
       } catch (error) {
         setErrorMessage(
           error instanceof Error ? error.message : 'Email confirmation failed.',
