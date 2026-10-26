@@ -4,7 +4,11 @@ const colors = {
   white: '#FBFBFB',
   primary: '#5B2A8C',
   primaryDark: '#4A2170',
+<<<<<<< HEAD
   primaryLight: '#EFE6F7',
+=======
+  tabBarActive: '#3524C4',
+>>>>>>> 86cf7a7 ([refactor] fix navigation and update SDK version)
   text: '#1A1A1A',
   textMuted: '#6B6B76',
   inputBackground: '#F1F5F9',
