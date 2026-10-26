@@ -3,17 +3,17 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { Link } from 'expo-router';
 import styles from './styles';
 
-interface CardItem {
+export interface SearchResultItem {
   title: string;
   keywords: string[];
   route: string;
 }
 
-export default function Card({
+export default function SearchResultRow({
   item,
   matchedContent,
 }: {
-  item: CardItem;
+  item: SearchResultItem;
   matchedContent: string;
 }) {
   return (
