@@ -4,6 +4,7 @@ const colors = {
   white: '#FBFBFB',
   primary: '#5B2A8C',
   primaryDark: '#4A2170',
+  tabBarActive: '#3524C4',
   text: '#1A1A1A',
   textMuted: '#6B6B76',
   inputBackground: '#F1F5F9',
