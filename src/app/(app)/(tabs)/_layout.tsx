@@ -3,6 +3,7 @@ import { Tabs, useRouter } from 'expo-router';
 import {
   Feather,
   Ionicons,
+  MaterialCommunityIcons,
   //MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
@@ -72,17 +73,14 @@ export default function TabsLayout() {
           name="documents"
           options={{
             title: 'Toolkit',
-          tabBarButton: () => <View style={{ flex: 1 }} />,
-          /*
             tabBarIcon: ({ color, focused }) => (
               <TabIcon focused={focused}>
                 <Image
                   source={ToolkitIcon}
                   style={[styles.icon, { tintColor: color }]}
                 />
-            
               </TabIcon>
-            ),*/
+            ),
           }}
         />
         <Tabs.Screen
