@@ -32,7 +32,7 @@ export default function App() {
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={{ fontSize: 24 }}>Good morning, Melissa</Text>
+      <Text style={{ fontSize: 24 }}>Welcome!</Text>
       <View style={styles['search-group']}>
         <View
           style={[
@@ -93,23 +93,6 @@ export default function App() {
         {normalizedSearchTerm.length > 0 && !hasSearchResults && (
           <Text style={styles['no-results']}>No matching results</Text>
         )}
-      </View>
-      <View>
-        <Text style={styles['header-2']}>Recent Searches</Text>
-        <View style={styles['indented-text']}>
-          <Link style={styles['linked-text']} href="support/guides">
-            Guides - Financial Literacy
-          </Link>
-          <Link style={styles['linked-text']} href="documents">
-            My Documents
-          </Link>
-          <Link style={styles['linked-text']} href="support/resources">
-            Resources near me
-          </Link>
-          <Link style={styles['linked-text']} href="documents">
-            Survivor Toolkit
-          </Link>
-        </View>
       </View>
       <View>
         <Text style={styles['header-2']}>Quick Links</Text>
