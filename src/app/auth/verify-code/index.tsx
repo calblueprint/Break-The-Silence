@@ -58,7 +58,7 @@ export default function VerifyCodePage() {
 
       Alert.alert('Success!', 'Your email has been verified.');
 
-      router.replace('/(app)/(tabs)/support');
+      router.replace('/(app)/(tabs)/home');
     } catch (error) {
       setVerificationError({
         title: 'Verification Failed',
