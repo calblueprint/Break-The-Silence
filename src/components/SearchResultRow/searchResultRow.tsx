@@ -1,13 +1,8 @@
 import type { Href } from 'expo-router';
+import type { SearchResultItem } from '../../data/searchData';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Link } from 'expo-router';
 import styles from './styles';
-
-export interface SearchResultItem {
-  title: string;
-  keywords: string[];
-  route: string;
-}
 
 export default function SearchResultRow({
   item,

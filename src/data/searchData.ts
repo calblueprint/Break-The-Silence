@@ -1,4 +1,8 @@
-import type { SearchResultItem } from '../components/SearchResultRow/searchResultRow';
+export interface SearchResultItem {
+  title: string;
+  keywords: string[];
+  route: string;
+}
 
 export const searchableItemsList: SearchResultItem[] = [
   {
