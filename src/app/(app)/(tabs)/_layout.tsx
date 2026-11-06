@@ -40,7 +40,13 @@ export default function TabsLayout() {
           title: 'Support',
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <SimpleLineIcons name="earphones-alt" size={29} color={color} />
+            <SimpleLineIcons
+              name="earphones-alt"
+              size={29}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
@@ -49,7 +55,13 @@ export default function TabsLayout() {
         options={{
           title: 'Journal',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="journal-outline" size={31} color={color} />
+            <Ionicons
+              name="journal-outline"
+              size={31}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
@@ -86,7 +98,9 @@ export default function TabsLayout() {
             <MaterialCommunityIcons
               name="toolbox-outline"
               size={35}
-              color={color}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
             />
           ),
         }}
@@ -96,7 +110,13 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={29} color={color} />
+            <Ionicons
+              name="person-outline"
+              size={29}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
