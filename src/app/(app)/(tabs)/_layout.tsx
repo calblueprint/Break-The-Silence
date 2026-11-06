@@ -86,7 +86,7 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="documents"
+          name="guides"
           options={{
             title: 'Toolkit',
             tabBarIcon: ({ color, focused }) => (
