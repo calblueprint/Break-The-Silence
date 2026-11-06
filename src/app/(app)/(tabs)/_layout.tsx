@@ -12,6 +12,9 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
+        sceneStyle: {
+          backgroundColor: colors.white,
+        },
         tabBarStyle: {
           height: 85,
           // paddingBottom: 10,
@@ -75,9 +78,10 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="documents"
+        name="guides"
         options={{
           title: 'Toolkit',
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="toolbox-outline"
@@ -97,7 +101,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="documents/upload"
+        name="documents"
         options={{
           href: null,
         }}
