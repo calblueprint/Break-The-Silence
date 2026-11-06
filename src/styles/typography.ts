@@ -40,6 +40,11 @@ export const typography = StyleSheet.create({
     ...nunitoSansRegular,
     fontSize: 16,
   },
+  p1Link: {
+    ...nunitoSansRegular,
+    fontSize: 16,
+    color: 'blue',
+  },
   p2: {
     ...nunitoSansRegular,
     fontSize: 14,
