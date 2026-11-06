@@ -6,6 +6,7 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
+import colors from '@/styles/colors';
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -17,7 +18,6 @@ export default function TabsLayout() {
         },
         tabBarStyle: {
           height: 85,
-          // paddingBottom: 10,
           paddingBottom: 0,
         },
         tabBarActiveTintColor: '#3524C4',
