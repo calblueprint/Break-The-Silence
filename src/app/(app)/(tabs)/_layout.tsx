@@ -6,6 +6,7 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
+import colors from '../../../styles/colors';
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -14,10 +15,9 @@ export default function TabsLayout() {
       screenOptions={{
         tabBarStyle: {
           height: 85,
-          // paddingBottom: 10,
           paddingBottom: 0,
         },
-        tabBarActiveTintColor: '#3524C4',
+        tabBarActiveTintColor: colors.tabBarActive,
         tabBarItemStyle: {
           flex: 1,
         },
@@ -32,12 +32,29 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
+        name="home"
+        options={{
+          title: 'Home',
+          tabBarItemStyle: {
+            display: 'none',
+          },
+        }}
+      />
+      <Tabs.Screen
         name="support"
         options={{
           title: 'Support',
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <SimpleLineIcons name="earphones-alt" size={29} color={color} />
+            <SimpleLineIcons
+              name="earphones-alt"
+              size={29}
+              color={
+                typeof color === 'number'
+                  ? colors.tabBarActive
+                  : (color ?? colors.tabBarActive)
+              }
+            />
           ),
         }}
       />
@@ -46,7 +63,15 @@ export default function TabsLayout() {
         options={{
           title: 'Journal',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="journal-outline" size={31} color={color} />
+            <Ionicons
+              name="journal-outline"
+              size={31}
+              color={
+                typeof color === 'number'
+                  ? colors.tabBarActive
+                  : (color ?? colors.tabBarActive)
+              }
+            />
           ),
         }}
       />
@@ -63,7 +88,7 @@ export default function TabsLayout() {
           title: 'Safe Exit',
           tabBarIcon: () => (
             <View style={styles.plusButton}>
-              <Feather name="x" color="white" size={50} />
+              <Feather name="x" color={colors.white} size={50} />
             </View>
           ),
         }}
@@ -82,7 +107,11 @@ export default function TabsLayout() {
             <MaterialCommunityIcons
               name="toolbox-outline"
               size={35}
-              color={color}
+              color={
+                typeof color === 'number'
+                  ? colors.tabBarActive
+                  : (color ?? colors.tabBarActive)
+              }
             />
           ),
         }}
@@ -92,7 +121,15 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={29} color={color} />
+            <Ionicons
+              name="person-outline"
+              size={29}
+              color={
+                typeof color === 'number'
+                  ? colors.tabBarActive
+                  : (color ?? colors.tabBarActive)
+              }
+            />
           ),
         }}
       />
@@ -117,10 +154,10 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#3524C4',
+    backgroundColor: colors.tabBarActive,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#3524C4',
+    shadowColor: colors.tabBarActive,
     shadowOffset: {
       width: 0,
       height: 8,
