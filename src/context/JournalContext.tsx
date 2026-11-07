@@ -8,12 +8,15 @@ import {
   useMemo,
   useState,
 } from 'react';
+import Toast from '@/components/journal/Toast';
 import {
   createDiaryEntry,
   deleteDiaryEntry,
   fetchDiaryEntries,
   updateDiaryEntry,
 } from '~/api/supabase/queries/diary';
+
+const TOAST_DURATION_MS = 3000;
 
 interface JournalContextValue {
   // Sorted newest first
@@ -30,6 +33,8 @@ interface JournalContextValue {
   ) => Promise<JournalEntry>;
   deleteEntry: (id: string) => Promise<void>;
   getEntry: (id: string) => JournalEntry | undefined;
+  // Shows a short message that stays visible across journal screens
+  showToast: (message: string) => void;
 }
 
 interface JournalProviderProps {
@@ -44,6 +49,13 @@ export function JournalProvider({ children }: JournalProviderProps) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(null), TOAST_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
 
   const loadEntries = useCallback(async () => {
     try {
@@ -102,6 +114,7 @@ export function JournalProvider({ children }: JournalProviderProps) {
       updateEntry,
       deleteEntry,
       getEntry,
+      showToast: setToastMessage,
     }),
     [
       entries,
@@ -116,7 +129,10 @@ export function JournalProvider({ children }: JournalProviderProps) {
   );
 
   return (
-    <JournalContext.Provider value={value}>{children}</JournalContext.Provider>
+    <JournalContext.Provider value={value}>
+      {children}
+      {toastMessage ? <Toast message={toastMessage} /> : null}
+    </JournalContext.Provider>
   );
 }
 

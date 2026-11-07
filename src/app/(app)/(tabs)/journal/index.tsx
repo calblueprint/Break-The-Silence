@@ -14,10 +14,15 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import Button from '@/components/Button/Button';
 import EntryCard from '@/components/journal/EntryCard';
+import FilterModal, {
+  SortOrder,
+  YearGroup,
+} from '@/components/journal/FilterModal';
 import { journalListStyles as styles } from '@/components/journal/styles';
 import { useJournal } from '@/context/JournalContext';
 import colors from '@/styles/colors';
 import { formatMonthYear } from '@/utils/journalDates';
+import FilterIcon from '~/assets/filter.png';
 import SearchIcon from '~/assets/SearchIcon.png';
 
 interface MonthSection {
@@ -25,7 +30,7 @@ interface MonthSection {
   data: JournalEntry[];
 }
 
-// Entries are already sorted newest first, so consecutive entries share a month
+// Entries are always sorted by date, so consecutive entries share a month
 function groupByMonth(entries: JournalEntry[]): MonthSection[] {
   const sections: MonthSection[] = [];
   for (const entry of entries) {
@@ -40,22 +45,62 @@ function groupByMonth(entries: JournalEntry[]): MonthSection[] {
   return sections;
 }
 
+// Entries are sorted newest first, so years and months come out newest first
+function groupByYear(entries: JournalEntry[]): YearGroup[] {
+  const groups: YearGroup[] = [];
+  for (const entry of entries) {
+    const date = new Date(entry.createdAt);
+    const year = String(date.getFullYear());
+    const month = formatMonthYear(date);
+    const last = groups[groups.length - 1];
+    if (!last || last.year !== year) {
+      groups.push({ year, months: [month] });
+    } else if (last.months[last.months.length - 1] !== month) {
+      last.months.push(month);
+    }
+  }
+  return groups;
+}
+
 export default function Journal() {
   const router = useRouter();
   const { entries, loading, error, refresh } = useJournal();
   const [search, setSearch] = useState('');
+  // A year like "2026" or a month like "October 2026"; null shows all entries
+  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
+  const [filterVisible, setFilterVisible] = useState(false);
+
+  // Only years and months that have entries
+  const yearGroups = useMemo(() => groupByYear(entries), [entries]);
+
+  // Falls back to all entries if the selected period's last entry was deleted
+  const activePeriod =
+    selectedPeriod &&
+    yearGroups.some(
+      group =>
+        group.year === selectedPeriod || group.months.includes(selectedPeriod),
+    )
+      ? selectedPeriod
+      : null;
 
   const sections = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const filtered = query
-      ? entries.filter(
-          entry =>
-            entry.title.toLowerCase().includes(query) ||
-            entry.content.toLowerCase().includes(query),
-        )
-      : entries;
-    return groupByMonth(filtered);
-  }, [entries, search]);
+    const filtered = entries.filter(entry => {
+      const date = new Date(entry.createdAt);
+      return (
+        (!activePeriod ||
+          String(date.getFullYear()) === activePeriod ||
+          formatMonthYear(date) === activePeriod) &&
+        (entry.title.toLowerCase().includes(query) ||
+          entry.content.toLowerCase().includes(query))
+      );
+    });
+    // Entries from context are newest first
+    return groupByMonth(
+      sortOrder === 'oldest' ? [...filtered].reverse() : filtered,
+    );
+  }, [entries, search, activePeriod, sortOrder]);
 
   const goToNewEntry = () => router.push('/journal/new_entry');
 
@@ -107,18 +152,43 @@ export default function Journal() {
         </View>
       ) : (
         <>
-          <View style={styles.searchBarContainer}>
-            <Image source={SearchIcon} style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Search through journal..."
-              placeholderTextColor={colors.textMuted}
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-            />
+          <View style={styles.searchRowContainer}>
+            <View style={styles.searchBarContainer}>
+              <Image source={SearchIcon} style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search through journal..."
+                placeholderTextColor={colors.textMuted}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
+              />
+            </View>
+            <Pressable
+              onPress={() => setFilterVisible(true)}
+              hitSlop={8}
+              style={[
+                styles.filterButtonContainer,
+                (activePeriod || sortOrder === 'oldest') &&
+                  styles.filterButtonActiveContainer,
+              ]}
+              accessibilityLabel="Filter and sort entries"
+            >
+              <Image source={FilterIcon} style={styles.filterIcon} />
+            </Pressable>
           </View>
+          {activePeriod ? (
+            <Pressable
+              onPress={() => setSelectedPeriod(null)}
+              hitSlop={8}
+              style={styles.activeFilterChipContainer}
+              accessibilityLabel={`Clear ${activePeriod} filter and show all entries`}
+            >
+              <Text style={styles.activeFilterChipText}>{activePeriod}</Text>
+              <Feather name="x" size={14} color={colors.primary} />
+            </Pressable>
+          ) : null}
           <SectionList
             sections={sections}
             keyExtractor={entry => entry.id}
@@ -146,8 +216,18 @@ export default function Journal() {
             ListEmptyComponent={
               <Text style={styles.noResultsText}>
                 No entries match &quot;{search.trim()}&quot;
+                {activePeriod ? ` in ${activePeriod}` : ''}
               </Text>
             }
+          />
+          <FilterModal
+            visible={filterVisible}
+            yearGroups={yearGroups}
+            selectedPeriod={activePeriod}
+            sortOrder={sortOrder}
+            onSelectPeriod={setSelectedPeriod}
+            onSelectSortOrder={setSortOrder}
+            onClose={() => setFilterVisible(false)}
           />
         </>
       )}

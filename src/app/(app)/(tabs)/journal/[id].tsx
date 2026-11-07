@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   Text,
@@ -11,8 +12,8 @@ import { Feather } from '@expo/vector-icons';
 import { entryDetailStyles as styles } from '@/components/journal/styles';
 import { useJournal } from '@/context/JournalContext';
 import colors from '@/styles/colors';
-import { formatShortDate, formatTime } from '@/utils/journalDates';
-import CalendarIcon from '~/assets/CgCalendarDates.svg';
+import { formatFullDate, formatTime } from '@/utils/journalDates';
+import EditIcon from '~/assets/Icon.png';
 
 export default function JournalEntryDetail() {
   const router = useRouter();
@@ -37,17 +38,18 @@ export default function JournalEntryDetail() {
           style={styles.backButtonContainer}
           accessibilityLabel="Back to journal"
         >
-          <Feather name="chevron-left" size={26} color={colors.text} />
+          <Feather name="arrow-left" size={24} color={colors.text} />
           <Text style={styles.backText}>Journal</Text>
         </Pressable>
       </View>
 
       {entry ? (
         <ScrollView contentContainerStyle={styles.scrollContentContainer}>
-          <View style={styles.dateChipContainer}>
-            <CalendarIcon width={14} height={14} color={colors.primary} />
+          <View style={styles.dateRowContainer}>
             <Text style={styles.dateText}>
-              {formatShortDate(new Date(entry.createdAt))}{' '}
+              {formatFullDate(new Date(entry.createdAt))}
+            </Text>
+            <Text style={styles.dateText}>
               {formatTime(new Date(entry.createdAt))}
             </Text>
           </View>
@@ -66,6 +68,22 @@ export default function JournalEntryDetail() {
           </Text>
         </View>
       )}
+
+      {entry ? (
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: '/journal/edit/[id]',
+              params: { id },
+            })
+          }
+          style={styles.editButtonContainer}
+          accessibilityLabel="Edit entry"
+        >
+          <Image source={EditIcon} style={styles.editIcon} />
+          <Text style={styles.editButtonText}>Edit</Text>
+        </Pressable>
+      ) : null}
     </SafeAreaView>
   );
 }

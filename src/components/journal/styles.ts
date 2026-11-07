@@ -7,7 +7,7 @@ const screenContainerBase = {
   backgroundColor: colors.white,
 } as const;
 
-// Top bar with a bottom border (New Entry and entry detail)
+// Top bar with a bottom border (entry form and entry detail)
 const headerBarContainerBase = {
   flexDirection: 'row',
   alignItems: 'center',
@@ -79,7 +79,13 @@ export const journalListStyles = StyleSheet.create({
     ...typography.h2,
     color: colors.black,
   },
+  searchRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 8,
+  },
   searchBarContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     columnGap: 8,
@@ -98,6 +104,38 @@ export const journalListStyles = StyleSheet.create({
     flex: 1,
     height: '100%',
     color: colors.text,
+  },
+  filterButtonContainer: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: colors.inputBackground,
+  },
+  // Shows a filter or non-default sort is on even when the popup is closed
+  filterButtonActiveContainer: {
+    backgroundColor: colors.primaryLight,
+  },
+  filterIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+  },
+  activeFilterChipContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    columnGap: 6,
+    marginTop: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: colors.primaryLight,
+  },
+  activeFilterChipText: {
+    ...typography.p3,
+    color: colors.primary,
   },
   listContentContainer: {
     rowGap: 12,
@@ -139,8 +177,8 @@ export const journalListStyles = StyleSheet.create({
   },
 });
 
-// New Entry screen
-export const newEntryStyles = StyleSheet.create({
+// Entry form (New Entry and Edit Entry screens)
+export const entryFormStyles = StyleSheet.create({
   container: screenContainerBase,
   flexContainer: {
     flex: 1,
@@ -154,14 +192,16 @@ export const newEntryStyles = StyleSheet.create({
     // Tall enough that the bottom border sits below the Safe Exit button
     minHeight: 56,
   },
+  // Keeps the actions together when the Discard button is showing
+  headerGroupedContainer: {
+    justifyContent: 'flex-start',
+    columnGap: 20,
+  },
   cancelText: headerTextBase,
   saveText: {
     ...headerTextBase,
     fontFamily: fontFamilies.montserratBold,
     color: colors.black,
-  },
-  saveDisabledText: {
-    color: colors.textMuted,
   },
   scrollContentContainer: scrollContentContainerBase,
   dateChipContainer: dateChipContainerBase,
@@ -193,24 +233,61 @@ export const entryDetailStyles = StyleSheet.create({
   container: screenContainerBase,
   headerContainer: {
     ...headerBarContainerBase,
-    paddingHorizontal: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    // Leaves room for the floating Safe Exit button in the top right
+    paddingRight: 72,
     // Tall enough that the bottom border sits below the Safe Exit button
     minHeight: 56,
   },
   backButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    columnGap: 16,
   },
   backText: headerTextBase,
-  scrollContentContainer: scrollContentContainerBase,
-  dateChipContainer: dateChipContainerBase,
-  dateText: dateTextBase,
+  // Floats over the entry at the bottom right
+  editButtonContainer: {
+    position: 'absolute',
+    right: 20,
+    bottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 8,
+    height: 48,
+    paddingHorizontal: 18,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
+  },
+  editIcon: {
+    width: 19,
+    height: 19,
+  },
+  editButtonText: {
+    ...typography.montserratBody,
+    fontWeight: '600',
+    fontSize: 16,
+    color: colors.white,
+  },
+  scrollContentContainer: {
+    ...scrollContentContainerBase,
+    // Lets the end of a long entry scroll clear of the Edit button
+    paddingBottom: 88,
+  },
+  dateRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dateText: {
+    ...typography.p2,
+    color: colors.textMuted,
+  },
   titleText: entryTitleTextBase,
   divider: dividerBase,
   bodyText: {
     ...typography.p1,
     color: colors.text,
-    lineHeight: 22,
+    lineHeight: 26,
   },
   notFoundContainer: {
     flex: 1,
@@ -252,8 +329,8 @@ export const entryCardStyles = StyleSheet.create({
   },
 });
 
-// Save / Discard confirmation popup
-export const confirmModalStyles = StyleSheet.create({
+// Dimmed background and Safe Exit button shared by every popup
+export const popupModalStyles = StyleSheet.create({
   overlayContainer: {
     flex: 1,
     backgroundColor: colors.overlay,
@@ -261,37 +338,121 @@ export const confirmModalStyles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
+  // Matches the Safe Exit button's position in the tabs layout
+  safeExitButton: {
+    position: 'absolute',
+    right: 16,
+  },
+});
+
+// Filter and sort popup on the journal list
+export const filterModalStyles = StyleSheet.create({
   dialogContainer: {
     width: '100%',
     maxWidth: 360,
     backgroundColor: colors.white,
     borderRadius: 16,
     padding: 24,
-    alignItems: 'center',
-    rowGap: 12,
+    rowGap: 8,
   },
   titleText: {
     ...typography.h4,
     color: colors.black,
   },
-  messageText: {
+  sectionLabelText: {
+    ...typography.p3,
+    fontFamily: fontFamilies.montserratBold,
+    color: colors.primary,
+    letterSpacing: 0.5,
+    paddingTop: 8,
+  },
+  monthList: {
+    maxHeight: 220,
+  },
+  optionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  optionIndented: {
+    paddingLeft: 16,
+  },
+  optionText: {
     ...typography.p1,
     color: colors.text,
-    textAlign: 'center',
   },
+  optionSelectedText: {
+    color: colors.primary,
+  },
+  doneButtonContainer: {
+    width: '100%',
+    marginTop: 8,
+  },
+});
+
+// "Changes saved!" style message above the tab bar
+export const toastStyles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: 16,
+    width: 289,
+    backgroundColor: colors.toastBackground,
+    borderRadius: 10,
+    padding: 12,
+    // Lets taps reach whatever is underneath
+    pointerEvents: 'none',
+    shadowColor: colors.black,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  messageText: {
+    ...typography.p2,
+    color: colors.white,
+  },
+});
+
+// Save / Discard / Delete confirmation popup
+export const confirmModalStyles = StyleSheet.create({
+  dialogContainer: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    rowGap: 8,
+  },
+  titleText: {
+    ...typography.h4,
+    color: colors.black,
+    marginBottom: 12,
+  },
+  messageText: {
+    ...typography.p2,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  // Clips the corners too, since a disabled Button resets its own radius
   buttonContainer: {
     width: '100%',
+    borderRadius: 12,
   },
   button: {
-    paddingVertical: 8,
+    minHeight: 48,
+    borderRadius: 12,
   },
   buttonText: {
-    ...typography.p2,
+    ...typography.montserratBody,
   },
   secondaryButton: {
     backgroundColor: colors.inputBackground,
   },
   secondaryButtonText: {
-    color: colors.text,
+    color: colors.black,
   },
 });

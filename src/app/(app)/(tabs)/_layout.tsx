@@ -1,13 +1,28 @@
+import type { ReactNode } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  SimpleLineIcons,
-} from '@expo/vector-icons';
+import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import SafeExitButton from '@/components/SafeExitButton';
+import colors from '@/styles/colors';
 import HouseIcon from '~/assets/House.png';
+import JournalIcon from '~/assets/journal.png';
+import ToolkitIcon from '~/assets/toolkit.png';
+
+// Puts a soft circle behind the icon of the open tab
+function TabIcon({
+  focused,
+  children,
+}: {
+  focused: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <View style={[styles.tabIcon, focused && styles.tabIconFocused]}>
+      {children}
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -16,23 +31,15 @@ export default function TabsLayout() {
     <View style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarStyle: {
-            height: 85,
-            // paddingBottom: 10,
-            paddingBottom: 0,
-          },
-          tabBarActiveTintColor: '#3524C4',
-          tabBarItemStyle: {
-            flex: 1,
-          },
-          tabBarIconStyle: {
-            width: 50,
-            height: 50,
-          },
-          tabBarLabelStyle: {
-            fontSize: 11,
-            marginTop: -4,
-          },
+          tabBarShowLabel: false,
+          tabBarStyle: [
+            styles.tabBar,
+            { marginBottom: Math.max(insets.bottom, 16) },
+          ],
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.navInactive,
+          tabBarItemStyle: styles.tabBarItem,
+          tabBarIconStyle: styles.tabBarIcon,
         }}
       >
         <Tabs.Screen
@@ -40,8 +47,10 @@ export default function TabsLayout() {
           options={{
             title: 'Support',
             headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <SimpleLineIcons name="earphones-alt" size={29} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon focused={focused}>
+                <SimpleLineIcons name="earphones-alt" size={22} color={color} />
+              </TabIcon>
             ),
           }}
         />
@@ -50,8 +59,13 @@ export default function TabsLayout() {
           options={{
             title: 'Journal',
             headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="journal-outline" size={31} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon focused={focused}>
+                <Image
+                  source={JournalIcon}
+                  style={[styles.icon, { tintColor: color }]}
+                />
+              </TabIcon>
             ),
           }}
         />
@@ -60,11 +74,13 @@ export default function TabsLayout() {
           options={{
             title: 'Home',
             headerShown: false,
-            tabBarIcon: ({ color }) => (
-              <Image
-                source={HouseIcon}
-                style={[styles.houseIcon, { tintColor: color }]}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon focused={focused}>
+                <Image
+                  source={HouseIcon}
+                  style={[styles.houseIcon, { tintColor: color }]}
+                />
+              </TabIcon>
             ),
           }}
         />
@@ -72,12 +88,13 @@ export default function TabsLayout() {
           name="documents"
           options={{
             title: 'Toolkit',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons
-                name="toolbox-outline"
-                size={35}
-                color={color}
-              />
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon focused={focused}>
+                <Image
+                  source={ToolkitIcon}
+                  style={[styles.icon, { tintColor: color }]}
+                />
+              </TabIcon>
             ),
           }}
         />
@@ -85,8 +102,10 @@ export default function TabsLayout() {
           name="profile"
           options={{
             title: 'Profile',
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="person-outline" size={29} color={color} />
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon focused={focused}>
+                <Ionicons name="person-outline" size={24} color={color} />
+              </TabIcon>
             ),
           }}
         />
@@ -107,10 +126,51 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // Shows around the dock, so it has to match the screens above it
+    backgroundColor: colors.white,
+  },
+  // Floating pill dock. It still takes up layout space, so screen content and
+  // floating buttons always stop above it.
+  tabBar: {
+    alignSelf: 'center',
+    width: 300,
+    maxWidth: '90%',
+    height: 60,
+    paddingBottom: 0,
+    borderTopWidth: 0,
+    borderRadius: 30,
+    backgroundColor: colors.white,
+    shadowColor: colors.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 6,
+  },
+  tabBarItem: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  tabBarIcon: {
+    width: 48,
+    height: 48,
+  },
+  tabIcon: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 24,
+  },
+  tabIconFocused: {
+    backgroundColor: colors.primaryLight,
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   houseIcon: {
-    width: 31,
-    height: 27,
+    width: 24,
+    height: 21,
   },
   // Floats over every tab screen, matching the design's top-right X
   safeExitButton: {
