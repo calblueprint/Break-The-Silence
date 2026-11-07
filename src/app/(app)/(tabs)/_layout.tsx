@@ -4,6 +4,7 @@ import {
   Feather,
   Ionicons,
   MaterialCommunityIcons,
+  //MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
 

@@ -128,3 +128,5 @@ export const verifySignupCode = async (email: string, otpCode: string) => {
 
   return data;
 };
+
+export { supabase };
