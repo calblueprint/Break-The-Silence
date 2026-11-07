@@ -7,6 +7,7 @@ export default function JournalLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="new_entry" />
+        <Stack.Screen name="edit/[id]" />
         <Stack.Screen name="[id]" />
       </Stack>
     </JournalProvider>

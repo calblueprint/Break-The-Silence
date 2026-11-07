@@ -1,4 +1,13 @@
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const FULL_WEEKDAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
 const MONTHS = [
   'Jan',
   'Feb',
@@ -39,6 +48,11 @@ export function formatTime(date: Date) {
 // "Fri, Oct 9"
 export function formatShortDate(date: Date) {
   return `${WEEKDAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}`;
+}
+
+// "Friday, October 9 2026"
+export function formatFullDate(date: Date) {
+  return `${FULL_WEEKDAYS[date.getDay()]}, ${FULL_MONTHS[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}`;
 }
 
 // "Fri, Oct 9 • 9:41 AM"
