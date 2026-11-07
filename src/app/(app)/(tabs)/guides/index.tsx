@@ -1,9 +1,9 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 // import { Link } from 'expo-router';
 import mockGuides from '@/data/mockGuides';
 import { toolkitListStyles as styles } from '@/styles/guidesStyles';
 import { typography } from '@/styles/typography';
-import { useRouter } from 'expo-router';
 
 export default function App() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function App() {
           Table of Contents
         </Text>
         <View style={styles.guideList}>
-          {mockGuides.map((guide) => (
+          {mockGuides.map(guide => (
             // <View key={guide.id} style={styles.guideRow}>
             //   <Text style={[typography.p1, styles.number]}>{index + 1}.</Text>
             //   <Link
@@ -32,12 +32,13 @@ export default function App() {
               accessibilityRole="button"
               onPress={() => {
                 router.push({
-                  pathname: '/(app)/(tabs)/guides/[slug]', params: { slug: guide.slug },
-                })
+                  pathname: '/(app)/(tabs)/guides/[slug]',
+                  params: { slug: guide.slug },
+                });
               }}
-              style={styles.guideButton}
+              // style={styles.guideButton}
             >
-              <Text style={styles.bottomBackLabel}>Back to Toolkit</Text>
+              {/* <Text style={styles.bottomBackLabel}>Back to Toolkit</Text> */}
             </Pressable>
           ))}
         </View>

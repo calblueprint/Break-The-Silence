@@ -759,7 +759,7 @@ export const mockGuides: Guide[] = [
     id: 'test-guide',
     slug: 'component-guide',
     title: 'Component Guide',
-    category: 'self-improvement',
+    category: 'self-development',
     description: 'Component Guide Description hHre.',
     sections: [
       {
