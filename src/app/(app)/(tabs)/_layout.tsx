@@ -6,15 +6,18 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
+import colors from '@/styles/colors';
 
 export default function TabsLayout() {
   const router = useRouter();
   return (
     <Tabs
       screenOptions={{
+        sceneStyle: {
+          backgroundColor: colors.white,
+        },
         tabBarStyle: {
           height: 85,
-          // paddingBottom: 10,
           paddingBottom: 0,
         },
         tabBarActiveTintColor: '#3524C4',
@@ -37,7 +40,13 @@ export default function TabsLayout() {
           title: 'Support',
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <SimpleLineIcons name="earphones-alt" size={29} color={color} />
+            <SimpleLineIcons
+              name="earphones-alt"
+              size={29}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
@@ -46,7 +55,13 @@ export default function TabsLayout() {
         options={{
           title: 'Journal',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="journal-outline" size={31} color={color} />
+            <Ionicons
+              name="journal-outline"
+              size={31}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
@@ -75,14 +90,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="documents"
+        name="guides"
         options={{
           title: 'Toolkit',
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="toolbox-outline"
               size={35}
-              color={color}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
             />
           ),
         }}
@@ -92,12 +110,18 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={29} color={color} />
+            <Ionicons
+              name="person-outline"
+              size={29}
+              color={
+                typeof color === 'number' ? colors.text : (color ?? colors.text)
+              }
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="documents/upload"
+        name="documents"
         options={{
           href: null,
         }}
