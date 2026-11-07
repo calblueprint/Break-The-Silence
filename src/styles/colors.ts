@@ -12,6 +12,8 @@ const colors = {
   buttonBackground: '#E2E8F0',
   error: '#FF0000',
   success: '#008000',
+  overlay: 'rgba(0, 0, 0, 0.25)',
+  safeExit: '#3E24C4',
 };
 
 export default colors;
