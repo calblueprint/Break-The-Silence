@@ -5,6 +5,13 @@ export interface Guide {
   slug: string;
   title: string;
   description?: string;
+  category:
+    | 'self-development'
+    | 'support'
+    | 'safety'
+    | 'legal'
+    | 'personal growth'
+    | 'finances';
   sections: GuideSection[];
 }
 

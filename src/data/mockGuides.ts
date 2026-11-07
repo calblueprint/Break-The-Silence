@@ -5,6 +5,7 @@ export const mockGuides: Guide[] = [
     id: 'guide-risk-assessment',
     slug: 'domestic-violence-risk-assessment-toolkit',
     title: 'Domestic Violence Risk Assessment Toolkit',
+    category: 'self-development',
     description:
       'Recognizing the risks associated with domestic violence is crucial for survivors to make informed decisions about their safety. This toolkit provides guidance on assessing danger levels, identifying warning signs, and accessing essential resources to develop a personalized safety plan.',
     sections: [
@@ -323,6 +324,7 @@ export const mockGuides: Guide[] = [
     id: 'guide-healthy-relationships',
     slug: 'building-healthy-relationships-after-domestic-violence',
     title: 'Building Healthy Relationships After Domestic Violence',
+    category: 'support',
     description: 'A Guide to Healing, Trust, and Healthy Connections',
     // The source screenshots have inconsistent numbering/headings: the TOC calls
     // section 1 'Introduction to Healthy Relationships', while the body calls it
@@ -757,6 +759,7 @@ export const mockGuides: Guide[] = [
     id: 'test-guide',
     slug: 'component-guide',
     title: 'Component Guide',
+    category: 'self-improvement',
     description: 'Component Guide Description hHre.',
     sections: [
       {

@@ -171,4 +171,15 @@ export const guideSectionStyles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  guideButton: {
+    minHeight: 48,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+  },
 });
