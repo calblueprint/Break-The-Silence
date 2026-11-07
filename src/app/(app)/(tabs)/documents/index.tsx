@@ -9,21 +9,22 @@ import {
   View,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import * as Linking from 'expo-linking';
 import { StatusBar } from 'expo-status-bar';
+import DocumentViewer from '@/components/documents/DocumentViewer';
 import Logo from '@/components/Logo';
 import colors from '@/styles/colors';
 import { typography } from '@/styles/typography';
 import {
   deleteFileFromSupabase,
   fetchUploadedFiles,
-  getFilePublicUrl,
+  getSecureFileUrl,
   uploadFileToSupabase,
 } from '../../../../../api/supabase/storage/documents';
 
 interface UploadedFile {
   id: string | null;
   name: string;
+  fullPath: string;
   metadata?: {
     mimetype?: string;
     size?: number;
@@ -32,6 +33,11 @@ interface UploadedFile {
 
 export default function App() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [viewerVisible, setViewerVisible] = useState(false);
+  const [currentViewUrl, setCurrentViewUrl] = useState<string | null>(null);
+  const [currentMimeType, setCurrentMimeType] = useState<string | undefined>(
+    undefined,
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -59,6 +65,17 @@ export default function App() {
       setLoading(true);
       const file = result.assets[0];
 
+      const MAX_FILE_SIZE_MB = 10;
+      const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+      if (file.size && file.size > MAX_FILE_SIZE_BYTES) {
+        Alert.alert(
+          'File is too large',
+          `Please select a file smaller than ${MAX_FILE_SIZE_MB}MB.`,
+        );
+        return;
+      }
+
       await uploadFileToSupabase(
         file.uri,
         file.name,
@@ -75,15 +92,25 @@ export default function App() {
     }
   };
 
-  const handleOpenFile = (fileName: string) => {
-    const url = getFilePublicUrl(fileName);
-    Linking.openURL(url);
-  };
-
-  const handleDeleteFile = async (fileName: string) => {
+  const handleOpenFile = async (file: UploadedFile) => {
     try {
       setLoading(true);
-      await deleteFileFromSupabase(fileName);
+      const secureUrl = await getSecureFileUrl(file.fullPath);
+      setCurrentViewUrl(secureUrl);
+      setCurrentMimeType(file.metadata?.mimetype);
+      setViewerVisible(true);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Could not open file.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteFile = async (fullPath: string) => {
+    try {
+      setLoading(true);
+      await deleteFileFromSupabase(fullPath);
       await loadFiles();
     } catch (error) {
       console.error(error);
@@ -125,12 +152,14 @@ export default function App() {
               KB
             </Text>
             <View style={styles.actionRow}>
-              <Pressable onPress={() => handleOpenFile(item.name)}>
-                <Text style={styles.openText}>Open</Text>
-              </Pressable>
-              <Pressable onPress={() => handleDeleteFile(item.name)}>
-                <Text style={styles.deleteText}>Delete</Text>
-              </Pressable>
+              <View style={styles.actionRow}>
+                <Pressable onPress={() => handleOpenFile(item)}>
+                  <Text style={styles.openText}>Open</Text>
+                </Pressable>
+                <Pressable onPress={() => handleDeleteFile(item.fullPath)}>
+                  <Text style={styles.deleteText}>Delete</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         )}
@@ -139,6 +168,15 @@ export default function App() {
         }
       />
       <StatusBar style="auto" />
+      <DocumentViewer
+        visible={viewerVisible}
+        fileUrl={currentViewUrl}
+        mimeType={currentMimeType}
+        onClose={() => {
+          setViewerVisible(false);
+          setCurrentViewUrl(null);
+        }}
+      />
     </View>
   );
 }

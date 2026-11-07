@@ -1,44 +1,59 @@
-import { supabase } from '../auth';
-
-const BUCKET_NAME = 'documents_poc';
+import supabase from '../client';
 
 export async function uploadFileToSupabase(
   uri: string,
   fileName: string,
   mimeType: string,
 ) {
-  try {
-    const response = await fetch(uri);
-    const arrayBuffer = await response.arrayBuffer();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
 
-    const uniqueFileName = `${Date.now()}_${fileName}`;
+  const response = await fetch(uri);
+  const arrayBuffer = await response.arrayBuffer();
 
-    const { data, error } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(uniqueFileName, arrayBuffer, {
-        contentType: mimeType,
-      });
+  const uniquePath = `${user.id}/${Date.now()}_${fileName}`;
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Supabase upload error:', error);
-    throw error;
-  }
+  const { data, error } = await supabase.storage
+    .from('documents_poc')
+    .upload(uniquePath, arrayBuffer, { contentType: mimeType });
+
+  if (error) throw error;
+  return data;
 }
 
 export async function fetchUploadedFiles() {
-  const { data, error } = await supabase.storage.from(BUCKET_NAME).list();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase.storage
+    .from('documents_poc')
+    .list(user.id);
+
   if (error) throw error;
-  return data.filter(file => file.name !== '.emptyFolderPlaceholder');
+
+  return data.map(file => ({
+    ...file,
+    fullPath: `${user.id}/${file.name}`,
+  }));
 }
 
-export function getFilePublicUrl(fileName: string) {
-  const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName);
-  return data.publicUrl;
+export async function getSecureFileUrl(fullPath: string) {
+  const { data, error } = await supabase.storage
+    .from('documents_poc')
+    .createSignedUrl(fullPath, 60);
+
+  if (error) throw error;
+  return data.signedUrl;
 }
 
-export async function deleteFileFromSupabase(fileName: string) {
-  const { error } = await supabase.storage.from(BUCKET_NAME).remove([fileName]);
+export async function deleteFileFromSupabase(fullPath: string) {
+  const { error } = await supabase.storage
+    .from('documents_poc')
+    .remove([fullPath]);
+
   if (error) throw error;
 }
