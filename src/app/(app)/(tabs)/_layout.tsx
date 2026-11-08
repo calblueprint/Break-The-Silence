@@ -5,7 +5,7 @@ import { Tabs } from 'expo-router';
 import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
-import styles from '@/styles/tabStyles/tabNavigation';
+import styles from '@/styles/tabNavigationStyles';
 import HouseIcon from '~/assets/House.png';
 import JournalIcon from '~/assets/journal.png';
 import ToolkitIcon from '~/assets/toolkit.png';

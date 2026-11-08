@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '@/styles/colors';
-import styles from '@/styles/tabStyles/home';
+import styles from '@/styles/homeStyles';
 import { typography } from '@/styles/typography';
 import SearchResultRow from '../../../../components/SearchResultRow/searchResultRow';
 import { searchableItemsList } from '../../../../data/searchData';
