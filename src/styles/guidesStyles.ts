@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import colors from './colors';
+import { montserratBold, typography } from './typography';
 
 export const toolkitListStyles = StyleSheet.create({
   screen: {
@@ -26,11 +27,31 @@ export const toolkitListStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
+  guideRowButton: {
+    width: '100%',
+    height: 78,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+    backgroundColor: colors.inputBackground,
+    gap: 6,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  guideCategoryLabel: {
+    ...typography.p2,
+    fontSize: 12,
+    color: colors.primary,
+  },
+  guideTitleLabel: {
+    ...montserratBold,
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: '600',
+  },
   number: {
     marginRight: 5,
-  },
-  guideLink: {
-    color: colors.primary,
   },
   footer: {
     marginHorizontal: 16,
@@ -97,6 +118,17 @@ export const guidePageStyles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.primary,
   },
+  guideRowButton: {
+    minHeight: 48,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: colors.success,
+  },
   bottomBackLabel: {
     color: colors.white,
     fontSize: 16,
@@ -105,6 +137,55 @@ export const guidePageStyles = StyleSheet.create({
 });
 
 export const guideSectionStyles = StyleSheet.create({
+  websitePromptOverlay: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: colors.overlay,
+  },
+  websitePromptDialog: {
+    width: '100%',
+    maxWidth: 360,
+    gap: 16,
+    padding: 24,
+    borderRadius: 16,
+    backgroundColor: colors.white,
+  },
+  websitePromptTitle: {
+    ...typography.h4,
+    color: colors.black,
+  },
+  websitePromptMessage: {
+    ...typography.p2,
+    color: colors.text,
+  },
+  websitePromptActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+  },
+  websitePromptButton: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    borderRadius: 12,
+  },
+  websiteCancelButton: {
+    backgroundColor: colors.inputBackground,
+  },
+  websiteContinueButton: {
+    backgroundColor: colors.primary,
+  },
+  websiteCancelLabel: {
+    ...typography.p1,
+    color: colors.text,
+  },
+  websiteContinueLabel: {
+    ...typography.p1,
+    color: colors.white,
+  },
   section: {
     width: '100%',
     marginBottom: 12,

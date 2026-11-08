@@ -11,7 +11,7 @@ const montserratRegular = {
   fontFamily: fontFamilies.montserrat,
 } as const;
 
-const montserratBold = {
+export const montserratBold = {
   fontFamily: fontFamilies.montserratBold,
 } as const;
 

@@ -111,6 +111,12 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="documents"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
           name="documents/upload"
           options={{
             href: null,

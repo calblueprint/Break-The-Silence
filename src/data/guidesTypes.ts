@@ -6,12 +6,13 @@ export interface Guide {
   title: string;
   description?: string;
   category:
-    | 'self-development'
-    | 'support'
-    | 'safety'
-    | 'legal'
-    | 'personal growth'
-    | 'finances';
+    | 'Self-Development'
+    | 'Support'
+    | 'Safety'
+    | 'Healing'
+    | 'Legal'
+    | 'Personal Growth'
+    | 'Finances';
   sections: GuideSection[];
 }
 

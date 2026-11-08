@@ -16,29 +16,22 @@ export default function App() {
         </Text>
         <View style={styles.guideList}>
           {mockGuides.map(guide => (
-            // <View key={guide.id} style={styles.guideRow}>
-            //   <Text style={[typography.p1, styles.number]}>{index + 1}.</Text>
-            //   <Link
-            //     href={{
-            //       pathname: '/(app)/(tabs)/guides/[slug]',
-            //       params: { slug: guide.slug },
-            //     }}
-            //     style={[typography.p1Link, styles.guideLink]}
-            //   >
-            //     {guide.title}
-            //   </Link>
-            // </View>
             <Pressable
+              key={guide.id}
               accessibilityRole="button"
+              accessibilityLabel={`Open guide: ${guide.title}`}
               onPress={() => {
                 router.push({
                   pathname: '/(app)/(tabs)/guides/[slug]',
                   params: { slug: guide.slug },
                 });
               }}
-              // style={styles.guideButton}
+              style={styles.guideRowButton}
             >
-              {/* <Text style={styles.bottomBackLabel}>Back to Toolkit</Text> */}
+              <Text style={styles.guideCategoryLabel}>{guide.category}</Text>
+              <Text style={styles.guideTitleLabel} numberOfLines={2}>
+                {guide.title}
+              </Text>
             </Pressable>
           ))}
         </View>

@@ -4,6 +4,7 @@ import {
   Alert,
   Image,
   Linking,
+  Modal,
   Pressable,
   Text,
   useWindowDimensions,
@@ -24,6 +25,7 @@ function renderBlock(
   block: GuideBlock,
   imageWidth: number,
   imageMaxHeight: number,
+  onWebsitePress: (url: string) => void,
 ) {
   switch (block.type) {
     case 'text':
@@ -118,7 +120,7 @@ function renderBlock(
           {resourceUrl ? (
             <Pressable
               accessibilityRole="link"
-              onPress={() => openResourceUrl(resourceUrl)}
+              onPress={() => onWebsitePress(resourceUrl)}
             >
               <Text style={[typography.p2, styles.link]}>{resourceUrl}</Text>
             </Pressable>
@@ -197,28 +199,75 @@ export default function GuideSectionView({
   guideSection: GuideSection;
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
   const imageWidth = Math.max(screenWidth - 48, 1);
   const imageMaxHeight = screenHeight * 0.5;
 
   return (
-    <View style={styles.section}>
-      <Text
-        style={[
-          guideSection.headingSize === 'large' ? typography.h2 : typography.h4,
-        ]}
-      >
-        {guideSection.title}
-      </Text>
-      <View style={styles.sectionContent}>
-        {guideSection.description ? (
-          <Text style={typography.p2}>{guideSection.description}</Text>
-        ) : null}
-        {guideSection.blocks.map(block => (
-          <View key={block.id}>
-            {renderBlock(block, imageWidth, imageMaxHeight)}
-          </View>
-        ))}
+    <>
+      <View style={styles.section}>
+        <Text
+          style={[
+            guideSection.headingSize === 'large'
+              ? typography.h2
+              : typography.h4,
+          ]}
+        >
+          {guideSection.title}
+        </Text>
+        <View style={styles.sectionContent}>
+          {guideSection.description ? (
+            <Text style={typography.p2}>{guideSection.description}</Text>
+          ) : null}
+          {guideSection.blocks.map(block => (
+            <View key={block.id}>
+              {renderBlock(block, imageWidth, imageMaxHeight, setWebsiteUrl)}
+            </View>
+          ))}
+        </View>
       </View>
-    </View>
+      <Modal
+        visible={websiteUrl !== null}
+        transparent
+        statusBarTranslucent
+        animationType="fade"
+        onRequestClose={() => setWebsiteUrl(null)}
+      >
+        <View style={styles.websitePromptOverlay}>
+          <View accessibilityViewIsModal style={styles.websitePromptDialog}>
+            <Text accessibilityRole="header" style={styles.websitePromptTitle}>
+              Open website?
+            </Text>
+            <Text style={styles.websitePromptMessage}>
+              Would you like to visit {websiteUrl}?
+            </Text>
+            <View style={styles.websitePromptActions}>
+              <Pressable
+                accessibilityRole="button"
+                style={[styles.websitePromptButton, styles.websiteCancelButton]}
+                onPress={() => setWebsiteUrl(null)}
+              >
+                <Text style={styles.websiteCancelLabel}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                style={[
+                  styles.websitePromptButton,
+                  styles.websiteContinueButton,
+                ]}
+                onPress={() => {
+                  if (websiteUrl) {
+                    void openResourceUrl(websiteUrl);
+                  }
+                  setWebsiteUrl(null);
+                }}
+              >
+                <Text style={styles.websiteContinueLabel}>Continue</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
