@@ -8,10 +8,11 @@ import {
 } from 'react-native';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import colors from '@/styles/colors';
+import { typography } from '@/styles/typography';
 import SearchResultRow from '../../../../components/SearchResultRow/searchResultRow';
 import { searchableItemsList } from '../../../../data/searchData';
-import colors from '../../../../styles/colors';
-import styles from '../../../../styles/homeStyles';
+import styles from './styles';
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,11 +29,11 @@ export default function App() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: colors.white }}
+      style={styles['home-base']}
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={{ fontSize: 24 }}>Welcome!</Text>
+      <Text style={typography.h3}>Welcome!</Text>
       <View style={styles['search-group']}>
         <View
           style={[
@@ -95,7 +96,7 @@ export default function App() {
         )}
       </View>
       <View>
-        <Text style={styles['header-2']}>Quick Links</Text>
+        <Text style={typography.h2}>Quick Links</Text>
         <View style={styles['indented-text']}>
           <Link style={styles['linked-text']} href="support/resources">
             Help Near Me
@@ -109,14 +110,14 @@ export default function App() {
         </View>
       </View>
       <View>
-        <Text style={styles['header-2']}>Recommended for you</Text>
+        <Text style={typography.h2}>Recommended for you</Text>
         <View style={styles['recommended-boxes-container']}>
           <View style={styles['recommended-boxes']}></View>
           <View style={styles['recommended-boxes']}></View>
         </View>
       </View>
       <View>
-        <Text style={styles['header-2']}>Survivor ToolKit Assessment</Text>
+        <Text style={typography.h2}>Survivor ToolKit Assessment</Text>
         <View style={styles['assessment-box']}></View>
       </View>
     </ScrollView>

@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import colors from './colors';
+import colors from '@/styles/colors';
+import { typography } from '@/styles/typography';
 
 export default StyleSheet.create({
   container: {
@@ -30,8 +31,8 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
   },
   'linked-text': {
+    ...typography.p1,
     color: colors.primary,
-    fontSize: 16,
   },
   'indented-text': {
     marginLeft: '5%',
@@ -79,5 +80,9 @@ export default StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 20,
     color: colors.textMuted,
+  },
+  'home-base': {
+    flex: 1,
+    backgroundColor: colors.white,
   },
 });
