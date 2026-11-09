@@ -86,7 +86,7 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="documents"
+          name="guides"
           options={{
             title: 'Toolkit',
             tabBarIcon: ({ color, focused }) => (
@@ -108,6 +108,12 @@ export default function TabsLayout() {
                 <Ionicons name="person-outline" size={24} color={color} />
               </TabIcon>
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="documents"
+          options={{
+            href: null,
           }}
         />
         <Tabs.Screen

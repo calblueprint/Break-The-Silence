@@ -1,0 +1,51 @@
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+// import { Link } from 'expo-router';
+import mockGuides from '@/data/mockGuides';
+import { toolkitListStyles as styles } from '@/styles/guidesStyles';
+import { typography } from '@/styles/typography';
+
+export default function App() {
+  const router = useRouter();
+  return (
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={[typography.h1, styles.pageTitle]}>Survivor Tool Kit</Text>
+        <Text style={[typography.h3, styles.tableTitle]}>
+          Table of Contents
+        </Text>
+        <View style={styles.guideList}>
+          {mockGuides.map(guide => (
+            <Pressable
+              key={guide.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Open guide: ${guide.title}`}
+              onPress={() => {
+                router.push({
+                  pathname: '/(app)/(tabs)/guides/[slug]',
+                  params: { slug: guide.slug },
+                });
+              }}
+              style={styles.guideRowButton}
+            >
+              <Text style={styles.guideCategoryLabel}>{guide.category}</Text>
+              <Text style={styles.guideTitleLabel} numberOfLines={2}>
+                {guide.title}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={styles.footer}>
+        <Text style={styles.footerTitle}>Need support?</Text>
+        <View style={styles.footerDetails}>
+          <Text style={styles.footerText}>Support line: 855-BTS-1777</Text>
+          <Text accessibilityLabel="Infinity symbol" style={styles.infinity}>
+            ∞
+          </Text>
+          <Text style={styles.footerText}>BTSADV.ORG/TOOLKIT</Text>
+        </View>
+      </View>
+    </View>
+  );
+}

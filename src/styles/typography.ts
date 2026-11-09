@@ -11,7 +11,7 @@ const montserratRegular = {
   fontFamily: fontFamilies.montserrat,
 } as const;
 
-const montserratBold = {
+export const montserratBold = {
   fontFamily: fontFamilies.montserratBold,
 } as const;
 
@@ -39,6 +39,11 @@ export const typography = StyleSheet.create({
   p1: {
     ...nunitoSansRegular,
     fontSize: 16,
+  },
+  p1Link: {
+    ...nunitoSansRegular,
+    fontSize: 16,
+    color: 'blue',
   },
   p2: {
     ...nunitoSansRegular,
