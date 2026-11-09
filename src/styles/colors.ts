@@ -9,7 +9,6 @@ const colors = {
   warningLight: '#FFF4D6',
   successLight: '#E8F5E9',
   neutralLight: '#F1F5F9',
-  tabBarActive: '#3524C4',
   text: '#1A1A1A',
   textMuted: '#6B6B76',
   inputBackground: '#F1F5F9',
