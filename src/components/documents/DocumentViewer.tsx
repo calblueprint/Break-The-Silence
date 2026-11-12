@@ -34,7 +34,7 @@ export default function DocumentViewer({
           style={{
             position: 'absolute',
             top: insets.top + 4,
-            right: 16, // (or left: 16, depending on what corner your team puts it in)
+            right: 16,
             zIndex: 999,
           }}
         />
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 60,
-    right: 20,
+    top: 65,
+    left: 20,
     zIndex: 1,
     padding: 10,
     backgroundColor: colors.primary,
