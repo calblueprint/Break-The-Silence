@@ -5,6 +5,7 @@ import {
   FlatList,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   View,
 } from 'react-native';
@@ -42,6 +43,7 @@ export default function App() {
     undefined,
   );
   const [loading, setLoading] = useState(false);
+  const [isSensitiveUpload, setIsSensitiveUpload] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -79,11 +81,17 @@ export default function App() {
         return;
       }
 
+      const finalFileName = isSensitiveUpload
+        ? `SENSITIVE_${file.name}`
+        : file.name;
+
       await uploadFileToSupabase(
         file.uri,
-        file.name,
+        finalFileName,
         file.mimeType ?? 'application/octet-stream',
       );
+
+      setIsSensitiveUpload(false);
 
       Alert.alert('Success', 'File uploaded to Supabase!');
       await loadFiles();
@@ -166,6 +174,19 @@ export default function App() {
     <View style={styles.container}>
       <Logo />
       <Text style={styles.titleText}>Documents</Text>
+
+      <View
+        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}
+      >
+        <Text style={{ ...typography.p2, marginRight: 10, color: colors.text }}>
+          Tag next upload as sensitive
+        </Text>
+        <Switch
+          value={isSensitiveUpload}
+          onValueChange={setIsSensitiveUpload}
+          trackColor={{ false: '#767577', true: colors.primary }}
+        />
+      </View>
 
       <Pressable
         style={[styles.uploadButton, loading && styles.uploadButtonDisabled]}
