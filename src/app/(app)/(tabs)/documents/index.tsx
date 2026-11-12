@@ -18,6 +18,8 @@ import {
   deleteFileFromSupabase,
   fetchUploadedFiles,
   getSecureFileUrl,
+  removeSharedFile,
+  shareFileWithUser,
   uploadFileToSupabase,
 } from '../../../../../api/supabase/storage/documents';
 
@@ -29,6 +31,7 @@ interface UploadedFile {
     mimetype?: string;
     size?: number;
   };
+  isShared?: boolean;
 }
 
 export default function App() {
@@ -120,6 +123,45 @@ export default function App() {
     }
   };
 
+  const handleShareFile = (fullPath: string) => {
+    Alert.prompt(
+      'Share Document',
+      "Enter the recipient's exact Supabase User ID:",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Share',
+          onPress: async (recipientId?: string) => {
+            if (!recipientId) return;
+            try {
+              setLoading(true);
+              await shareFileWithUser(fullPath, recipientId);
+              Alert.alert('Success', 'File shared securely!');
+            } catch (error) {
+              console.error(error);
+              Alert.alert('Error', 'Could not share file. Verify the User ID.');
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleRemoveShare = async (shareId: string) => {
+    try {
+      setLoading(true);
+      await removeSharedFile(shareId);
+      loadFiles();
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Could not remove shared file.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Logo />
@@ -146,20 +188,33 @@ export default function App() {
             <Text numberOfLines={1} style={styles.fileName}>
               {item.name}
             </Text>
-            <Text style={styles.fileMeta}>
+            <Text style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
               {item.metadata?.mimetype} •{' '}
-              {item.metadata?.size ? (item.metadata.size / 1024).toFixed(2) : 0}{' '}
-              KB
+              {item.isShared
+                ? 'Shared'
+                : `${((item.metadata?.size ?? 0) / 1024).toFixed(0)} KB`}
             </Text>
             <View style={styles.actionRow}>
-              <View style={styles.actionRow}>
-                <Pressable onPress={() => handleOpenFile(item)}>
-                  <Text style={styles.openText}>Open</Text>
+              <Pressable onPress={() => handleOpenFile(item)}>
+                <Text style={styles.openText}>Open</Text>
+              </Pressable>
+
+              {!item.isShared ? (
+                <>
+                  <Pressable onPress={() => handleShareFile(item.fullPath)}>
+                    <Text style={[styles.openText, { color: '#007AFF' }]}>
+                      Share
+                    </Text>
+                  </Pressable>
+                  <Pressable onPress={() => handleDeleteFile(item.fullPath)}>
+                    <Text style={styles.deleteText}>Delete</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Pressable onPress={() => handleRemoveShare(item.id!)}>
+                  <Text style={styles.deleteText}>Remove</Text>
                 </Pressable>
-                <Pressable onPress={() => handleDeleteFile(item.fullPath)}>
-                  <Text style={styles.deleteText}>Delete</Text>
-                </Pressable>
-              </View>
+              )}
             </View>
           </View>
         )}
