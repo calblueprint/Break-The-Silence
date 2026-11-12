@@ -1,5 +1,7 @@
 import React from 'react';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
 import { typography } from '@/styles/typography';
 
@@ -18,6 +20,8 @@ export default function DocumentViewer({
 }: DocumentViewerProps) {
   const isImage = mimeType?.startsWith('image/');
 
+  const insets = useSafeAreaInsets();
+
   return (
     <Modal
       visible={visible}
@@ -26,6 +30,14 @@ export default function DocumentViewer({
       onRequestClose={onClose}
     >
       <View style={styles.container}>
+        <SafeExitButton
+          style={{
+            position: 'absolute',
+            top: insets.top + 4,
+            right: 16, // (or left: 16, depending on what corner your team puts it in)
+            zIndex: 999,
+          }}
+        />
         <Pressable style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeText}>Close</Text>
         </Pressable>

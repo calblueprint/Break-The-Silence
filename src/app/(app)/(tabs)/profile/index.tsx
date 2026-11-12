@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
@@ -21,6 +21,7 @@ export default function App() {
         onPress={() => router.push('/documents')}
       />
 
+      <Link href="/(app)/(tabs)/home">Home</Link>
       <Button
         text="Sign Out"
         disabled={false}
