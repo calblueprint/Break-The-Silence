@@ -1,13 +1,28 @@
-import { StyleSheet, View } from 'react-native';
-import { Tabs, useRouter } from 'expo-router';
-import {
-  Feather,
-  Ionicons,
-  MaterialCommunityIcons,
-  //MaterialCommunityIcons,
-  SimpleLineIcons,
-} from '@expo/vector-icons';
-import styles from '@/components/Button/styles';
+import type { ReactNode } from 'react';
+import { Alert, Image, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Tabs } from 'expo-router';
+import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
+import SafeExitButton from '@/components/SafeExitButton';
+import colors from '@/styles/colors';
+import styles from '@/styles/tabNavigationStyles';
+import HouseIcon from '~/assets/House.png';
+import JournalIcon from '~/assets/journal.png';
+import ToolkitIcon from '~/assets/toolkit.png';
+
+function TabIcon({
+  focused,
+  children,
+}: {
+  focused: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <View style={[styles.tabIcon, focused && styles.tabIconFocused]}>
+      {children}
+    </View>
+  );
+}
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -70,7 +85,16 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="documents"
+          name="toolkit"
+          listeners={{
+            tabPress: e => {
+              e.preventDefault();
+              Alert.alert(
+                'Toolkit',
+                'Toolkit features are coming in a future sprint!',
+              );
+            },
+          }}
           options={{
             title: 'Toolkit',
             tabBarIcon: ({ color, focused }) => (
@@ -83,10 +107,12 @@ export default function TabsLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon focused={focused}>
                 <Ionicons name="person-outline" size={24} color={color} />
@@ -95,14 +121,19 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="documents/upload"
+          name="profile/documents/index"
           options={{
             href: null,
           }}
         />
       </Tabs>
       <SafeExitButton
-        style={[styles.safeExitButton, { top: insets.top + 4 }]}
+        style={{
+          position: 'absolute',
+          top: 76,
+          right: 20,
+          zIndex: 999,
+        }}
       />
     </View>
   );

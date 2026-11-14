@@ -1,6 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Link } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
@@ -16,11 +15,12 @@ export default function App() {
       <Logo />
       <Text style={styles.titleText}>Profile</Text>
 
-      <Button
-        text="Documents (POC)"
-        disabled={false}
-        onPress={() => router.push('/documents')}
-      />
+      <Pressable
+        onPress={() => router.push('/profile/documents')}
+        style={styles.menuItem}
+      >
+        <Text style={styles.titleText}>My Documents</Text>
+      </Pressable>
 
       <Link href="/(app)/(tabs)/home">Home</Link>
       <Button
@@ -46,5 +46,14 @@ const styles = StyleSheet.create({
   titleText: {
     ...typography.h3,
     color: colors.text,
+  },
+  menuItem: {
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginTop: 20,
+    width: '80%',
+    alignItems: 'center',
   },
 });

@@ -39,3 +39,11 @@ GRANT ALL ON public.document_shares TO authenticated;
 CREATE POLICY "Receivers can remove shares granted to them"
 ON public.document_shares FOR DELETE
 USING (auth.uid() = shared_with_id);
+
+DROP POLICY IF EXISTS "Users can create shares" ON document_shares;
+
+CREATE POLICY "Users can create shares for their own files" ON document_shares
+FOR INSERT WITH CHECK (
+  auth.uid() = owner_id AND
+  file_path LIKE (auth.uid()::text || '/%')
+);
