@@ -450,9 +450,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 20, // Adds the 20px gap below the header
+    paddingBottom: 20,
     alignItems: 'center',
-    zIndex: 10, // Ensures it stays above scroll content
+    zIndex: 10,
   },
   backButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerText: {
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 24,
   },
-  fileRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 }, // Using margin for the 12px gap
+  fileRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
   fileIconBox: {
     width: 40,
     height: 40,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   floatingUploadBtn: {
     position: 'absolute',
-    bottom: 16,
+    bottom: 109,
     right: 20,
     width: 145,
     height: 48,
@@ -575,7 +575,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito Sans',
   },
 
-  // Modal Styles remain the same
   modalContainer: { flex: 1, backgroundColor: colors.white },
   modalHeader: {
     flexDirection: 'row',
