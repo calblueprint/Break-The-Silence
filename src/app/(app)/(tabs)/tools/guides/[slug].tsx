@@ -14,6 +14,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import GuideContentSection from '@/components/GuideComponents/GuideContentSection';
+import { useGuideBookmarks } from '@/context/GuideBookmarksContext';
 import { guideCatalogEntries } from '@/data/guideCatalogData';
 import mockGuides from '@/data/mockGuides';
 import colors from '@/styles/colors';
@@ -62,13 +63,20 @@ export default function GuidePage() {
     item => item.id === slug || item.legacySlug === slug,
   );
   const detailedGuide = mockGuides.find(item => item.slug === slug);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const {
+    isBookmarked: hasBookmark,
+    toggleBookmark,
+    loading: bookmarksLoading,
+    error: bookmarkError,
+  } = useGuideBookmarks();
+  const isBookmarked = currentGuideEntry
+    ? hasBookmark(currentGuideEntry.id)
+    : false;
   const [helpfulResponse, setHelpfulResponse] = useState<HelpfulResponse>(null);
   const [helpfulFeedback, setHelpfulFeedback] = useState('');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   useEffect(() => {
-    setIsBookmarked(currentGuideEntry?.isBookmarked ?? false);
     setHelpfulResponse(null);
     setHelpfulFeedback('');
     setFeedbackSubmitted(false);
@@ -164,7 +172,8 @@ export default function GuidePage() {
               isBookmarked ? 'Remove bookmark' : 'Bookmark guide'
             }
             accessibilityState={{ selected: isBookmarked }}
-            onPress={() => setIsBookmarked(value => !value)}
+            disabled={bookmarksLoading}
+            onPress={() => toggleBookmark(currentGuideEntry.id)}
             style={[
               detailStyles.bookmarkButton,
               isBookmarked && detailStyles.bookmarkButtonSelected,
@@ -180,6 +189,11 @@ export default function GuidePage() {
             </Text>
           </Pressable>
         </View>
+        {bookmarkError ? (
+          <Text accessibilityRole="alert" style={detailStyles.detailReadTime}>
+            {bookmarkError}
+          </Text>
+        ) : null}
         {currentGuideEntry.summary ? (
           <Text style={detailStyles.detailSummary}>
             {currentGuideEntry.summary}

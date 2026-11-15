@@ -147,10 +147,13 @@ export const guideContentSectionStyles = StyleSheet.create({
   websitePromptDialog: {
     width: '100%',
     maxWidth: 360,
-    gap: 16,
-    padding: 24,
+    flexGrow: 0,
     borderRadius: 16,
     backgroundColor: colors.white,
+  },
+  websitePromptContent: {
+    gap: 16,
+    padding: 24,
   },
   websitePromptTitle: {
     ...typography.h4,

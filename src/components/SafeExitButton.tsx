@@ -6,17 +6,22 @@ import colors from '@/styles/colors';
 
 interface SafeExitButtonProps {
   style?: StyleProp<ViewStyle>;
+  onExit?: () => void;
 }
 
 // Leaves the app's private screens immediately
-export default function SafeExitButton({ style }: SafeExitButtonProps) {
+export default function SafeExitButton({ style, onExit }: SafeExitButtonProps) {
   const router = useRouter();
   return (
     <Pressable
-      onPress={() => router.replace('/')}
+      onPress={() => {
+        onExit?.();
+        router.replace('/');
+      }}
       hitSlop={8}
       style={[styles.buttonContainer, style]}
       accessibilityLabel="Safe exit"
+      accessibilityRole="button"
     >
       <Feather name="x" size={26} color={colors.white} />
     </Pressable>

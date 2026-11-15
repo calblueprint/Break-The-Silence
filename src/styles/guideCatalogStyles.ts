@@ -76,7 +76,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginHorizontal: 20,
-    marginTop: 2,
+    marginTop: 14,
     marginBottom: 14,
     padding: 8,
     borderRadius: 15,
@@ -166,6 +166,9 @@ export default StyleSheet.create({
   guideCardSearch: {
     height: 210,
   },
+  guideCardContent: {
+    flex: 1,
+  },
   categoryGuideGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -186,10 +189,15 @@ export default StyleSheet.create({
     borderTopRightRadius: 16,
     backgroundColor: colors.primaryLight,
   },
-  guideBookmarkIcon: {
+  guideBookmarkButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 0,
+    right: 0,
+    width: 44,
+    height: 44,
+    padding: 8,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
   },
   guideCategory: {
     ...typography.p3,

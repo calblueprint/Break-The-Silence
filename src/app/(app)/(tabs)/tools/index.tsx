@@ -1,37 +1,37 @@
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Button, Column, Host } from '@expo/ui';
+import Button from '@/components/Button/Button';
+import colors from '@/styles/colors';
 import { typography } from '@/styles/typography';
 
 export default function Tools() {
   const router = useRouter();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const buttonWidth = Math.round(screenWidth * 0.9);
-  const buttonHeight = Math.round(screenHeight * 0.1);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
         <Text accessibilityRole="header" style={styles.title}>
           Tools
         </Text>
       </View>
       <View style={styles.content}>
-        <Host matchContents>
-          <Column spacing={15} alignment="start">
-            <Button
-              style={{ width: buttonWidth, height: buttonHeight }}
-              label="Resources"
-              onPress={() => router.navigate('/tools/resources')}
-            />
-            <Button
-              style={{ width: buttonWidth, height: buttonHeight }}
-              label="Guides"
-              onPress={() => router.navigate('/tools/guides')}
-            />
-          </Column>
-        </Host>
+        <View style={styles.buttonGroup}>
+          <Button
+            disabled={false}
+            text="Resources"
+            buttonStyle={styles.button}
+            titleStyle={styles.buttonTitle}
+            onPress={() => router.navigate('/tools/resources')}
+          />
+          <Button
+            disabled={false}
+            text="Guides"
+            buttonStyle={styles.button}
+            titleStyle={styles.buttonTitle}
+            onPress={() => router.navigate('/tools/guides')}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -40,7 +40,7 @@ export default function Tools() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
   header: {
     paddingHorizontal: 20,
@@ -50,11 +50,23 @@ const styles = StyleSheet.create({
   title: {
     ...typography.h2,
     fontSize: 26,
-    color: '#000',
+    color: colors.black,
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 24,
+  },
+  buttonGroup: {
+    width: '100%',
+    maxWidth: 360,
+    gap: 16,
+  },
+  button: {
+    minHeight: 64,
+  },
+  buttonTitle: {
+    ...typography.p1,
   },
 });

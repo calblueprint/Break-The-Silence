@@ -127,11 +127,9 @@ export default function TabsLayout() {
           }}
         />
       </Tabs>
-      {!isGuideCompletion ? (
-        <SafeExitButton
-          style={[styles.safeExitButton, { top: insets.top + 4 }]}
-        />
-      ) : null}
+      <SafeExitButton
+        style={[styles.safeExitButton, { top: insets.top + 4 }]}
+      />
     </View>
   );
 }

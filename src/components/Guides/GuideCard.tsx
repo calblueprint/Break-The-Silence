@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { StyleProp, TextStyle } from 'react-native';
 import { Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useGuideBookmarks } from '@/context/GuideBookmarksContext';
 import colors from '@/styles/colors';
 import styles from '@/styles/guideCatalogStyles';
 
@@ -135,15 +136,12 @@ export default function GuideCard({
   grid?: boolean;
   searchQuery?: string;
 }) {
+  const { isBookmarked, toggleBookmark, loading } = useGuideBookmarks();
+  const bookmarked = isBookmarked(guide.id);
   const description = searchQuery ? getCardDescription(guide, searchQuery) : '';
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`Open guide: ${guide.title}, ${
-        guide.isBookmarked ? 'bookmarked' : 'not bookmarked'
-      }`}
-      onPress={onPress}
+    <View
       style={[
         styles.guideCard,
         Boolean(searchQuery) && styles.guideCardSearch,
@@ -151,34 +149,51 @@ export default function GuideCard({
         { width, minWidth: width, maxWidth: width },
       ]}
     >
-      <View style={styles.guideIllustration} />
-      <MaterialCommunityIcons
-        name={guide.isBookmarked ? 'bookmark' : 'bookmark-outline'}
-        size={22}
-        color={colors.primary}
-        style={styles.guideBookmarkIcon}
-      />
-      <HighlightedText
-        text={guide.category}
-        query={searchQuery}
-        style={styles.guideCategory}
-      />
-      <HighlightedText
-        text={guide.title}
-        query={searchQuery}
-        style={styles.guideTitle}
-        numberOfLines={2}
-        adjustsFontSizeToFit
-        minimumFontScale={0.55}
-      />
-      {description ? (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Open guide: ${guide.title}, ${
+          bookmarked ? 'bookmarked' : 'not bookmarked'
+        }`}
+        onPress={onPress}
+        style={styles.guideCardContent}
+      >
+        <View style={styles.guideIllustration} />
         <HighlightedText
-          text={description}
+          text={guide.category}
           query={searchQuery}
-          style={styles.guideDescription}
-          numberOfLines={2}
+          style={styles.guideCategory}
         />
-      ) : null}
-    </Pressable>
+        <HighlightedText
+          text={guide.title}
+          query={searchQuery}
+          style={styles.guideTitle}
+          numberOfLines={2}
+          adjustsFontSizeToFit
+          minimumFontScale={0.55}
+        />
+        {description ? (
+          <HighlightedText
+            text={description}
+            query={searchQuery}
+            style={styles.guideDescription}
+            numberOfLines={2}
+          />
+        ) : null}
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${bookmarked ? 'Remove bookmark' : 'Bookmark guide'}: ${guide.title}`}
+        accessibilityState={{ selected: bookmarked }}
+        disabled={loading}
+        onPress={() => toggleBookmark(guide.id)}
+        style={styles.guideBookmarkButton}
+      >
+        <MaterialCommunityIcons
+          name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+          size={22}
+          color={colors.primary}
+        />
+      </Pressable>
+    </View>
   );
 }

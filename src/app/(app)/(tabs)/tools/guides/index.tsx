@@ -11,6 +11,7 @@ import CategoryChips from '@/components/Guides/CategoryChips';
 import ContinueReadingCard from '@/components/Guides/ContinueReadingCard';
 import GuideCategorySection from '@/components/Guides/GuideCategorySection';
 import SearchBar from '@/components/Guides/SearchBar';
+import { useGuideBookmarks } from '@/context/GuideBookmarksContext';
 import {
   continueReadingGuide,
   guideCatalogEntries,
@@ -25,6 +26,11 @@ function getGuideFilter(value: string | undefined): GuideFilter {
 
 export default function GuidesScreen() {
   const router = useRouter();
+  const {
+    isBookmarked,
+    loading: bookmarksLoading,
+    error: bookmarkError,
+  } = useGuideBookmarks();
   const { category: categoryParam } = useLocalSearchParams<{
     category?: string;
   }>();
@@ -56,7 +62,7 @@ export default function GuidesScreen() {
         category,
         guides: guideCatalogEntries.filter(guide => {
           if (guide.category !== category) return false;
-          if (selectedCategory === 'Bookmarked' && !guide.isBookmarked) {
+          if (selectedCategory === 'Bookmarked' && !isBookmarked(guide.id)) {
             return false;
           }
           if (!query) return true;
@@ -73,7 +79,7 @@ export default function GuidesScreen() {
         }),
       }))
       .filter(section => section.guides.length > 0);
-  }, [debouncedSearch, selectedCategory]);
+  }, [debouncedSearch, selectedCategory, isBookmarked]);
 
   function handleSeeAll(category: GuideCategory) {
     setSelectedCategory(category);
@@ -98,6 +104,11 @@ export default function GuidesScreen() {
           selected={selectedCategory}
           onSelect={setSelectedCategory}
         />
+        {bookmarkError ? (
+          <Text accessibilityRole="alert" style={styles.emptyStateText}>
+            {bookmarkError}
+          </Text>
+        ) : null}
         {selectedCategory === 'All' && !debouncedSearch ? (
           <ContinueReadingCard guide={continueReadingGuide} />
         ) : null}
@@ -115,7 +126,13 @@ export default function GuidesScreen() {
           ))
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No guides found</Text>
+            <Text style={styles.emptyStateText}>
+              {selectedCategory === 'Bookmarked' &&
+              bookmarksLoading &&
+              !bookmarkError
+                ? 'Loading bookmarks…'
+                : 'No guides found'}
+            </Text>
           </View>
         )}
       </ScrollView>

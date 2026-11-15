@@ -10,14 +10,23 @@ import {
   Linking,
   Modal,
   Pressable,
+  ScrollView,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
 import { guideContentSectionStyles as styles } from '@/styles/guideContentStyles';
+import tabNavigationStyles from '@/styles/tabNavigationStyles';
 import { typography } from '@/styles/typography';
+
+type ExternalResource = {
+  type: 'website' | 'phone';
+  url: string;
+};
 
 async function openResourceUrl(url: string) {
   try {
@@ -31,7 +40,7 @@ function renderBlock(
   block: GuideBlock,
   imageWidth: number,
   imageMaxHeight: number,
-  onWebsitePress: (url: string) => void,
+  onResourcePress: (resource: ExternalResource) => void,
 ) {
   switch (block.type) {
     case 'text':
@@ -101,6 +110,7 @@ function renderBlock(
     }
     case 'resource': {
       const resourceUrl = block.url;
+      const resourcePhone = block.phone;
       const description = block.description ?? block.phone;
       return (
         <View style={styles.resourceCard}>
@@ -111,16 +121,17 @@ function renderBlock(
                 <Text style={styles.resourceDescription}>{description}</Text>
               ) : null}
             </View>
-            {block.phone || resourceUrl ? (
+            {resourcePhone || resourceUrl ? (
               <View style={styles.resourceActions}>
-                {block.phone ? (
+                {resourcePhone ? (
                   <Pressable
                     accessibilityRole="link"
-                    onPress={() => {
-                      void openResourceUrl(
-                        `tel:${block.phone?.replace(/[^\d+]/g, '')}`,
-                      );
-                    }}
+                    onPress={() =>
+                      onResourcePress({
+                        type: 'phone',
+                        url: `tel:${resourcePhone.replace(/[^\d+]/g, '')}`,
+                      })
+                    }
                     style={styles.resourceAction}
                   >
                     <Text style={styles.resourceActionLabel}>Call</Text>
@@ -129,7 +140,9 @@ function renderBlock(
                 {resourceUrl ? (
                   <Pressable
                     accessibilityRole="link"
-                    onPress={() => onWebsitePress(resourceUrl)}
+                    onPress={() =>
+                      onResourcePress({ type: 'website', url: resourceUrl })
+                    }
                     style={styles.resourceAction}
                   >
                     <Feather
@@ -219,7 +232,9 @@ export default function GuideContentSection({
   contentSection: GuideContentSectionData;
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const [pendingResource, setPendingResource] =
+    useState<ExternalResource | null>(null);
   const imageWidth = Math.max(screenWidth - 48, 1);
   const imageMaxHeight = screenHeight * 0.5;
 
@@ -241,31 +256,53 @@ export default function GuideContentSection({
           ) : null}
           {contentSection.blocks.map(block => (
             <View key={block.id}>
-              {renderBlock(block, imageWidth, imageMaxHeight, setWebsiteUrl)}
+              {renderBlock(
+                block,
+                imageWidth,
+                imageMaxHeight,
+                setPendingResource,
+              )}
             </View>
           ))}
         </View>
       </View>
       <Modal
-        visible={websiteUrl !== null}
+        visible={pendingResource !== null}
         transparent
         statusBarTranslucent
         animationType="fade"
-        onRequestClose={() => setWebsiteUrl(null)}
+        onRequestClose={() => setPendingResource(null)}
       >
-        <View style={styles.websitePromptOverlay}>
-          <View accessibilityViewIsModal style={styles.websitePromptDialog}>
+        <View
+          accessibilityViewIsModal
+          style={[
+            styles.websitePromptOverlay,
+            {
+              // Reserve space below the 44px Safe Exit button, including its hitSlop.
+              paddingTop: insets.top + 64,
+              paddingBottom: Math.max(insets.bottom, 24),
+            },
+          ]}
+        >
+          <ScrollView
+            style={styles.websitePromptDialog}
+            contentContainerStyle={styles.websitePromptContent}
+          >
             <Text accessibilityRole="header" style={styles.websitePromptTitle}>
-              Open website?
+              {pendingResource?.type === 'phone'
+                ? 'Open phone app?'
+                : 'Open website?'}
             </Text>
             <Text style={styles.websitePromptMessage}>
-              Would you like to visit {websiteUrl}?
+              {pendingResource?.type === 'phone'
+                ? 'Continuing may open your phone app and leave a call-history record.'
+                : `Would you like to visit ${pendingResource?.url}?`}
             </Text>
             <View style={styles.websitePromptActions}>
               <Pressable
                 accessibilityRole="button"
                 style={[styles.websitePromptButton, styles.websiteCancelButton]}
-                onPress={() => setWebsiteUrl(null)}
+                onPress={() => setPendingResource(null)}
               >
                 <Text style={styles.websiteCancelLabel}>Cancel</Text>
               </Pressable>
@@ -276,16 +313,23 @@ export default function GuideContentSection({
                   styles.websiteContinueButton,
                 ]}
                 onPress={() => {
-                  if (websiteUrl) {
-                    void openResourceUrl(websiteUrl);
+                  if (pendingResource) {
+                    void openResourceUrl(pendingResource.url);
                   }
-                  setWebsiteUrl(null);
+                  setPendingResource(null);
                 }}
               >
                 <Text style={styles.websiteContinueLabel}>Continue</Text>
               </Pressable>
             </View>
-          </View>
+          </ScrollView>
+          <SafeExitButton
+            style={[
+              tabNavigationStyles.safeExitButton,
+              { top: insets.top + 4 },
+            ]}
+            onExit={() => setPendingResource(null)}
+          />
         </View>
       </Modal>
     </>
