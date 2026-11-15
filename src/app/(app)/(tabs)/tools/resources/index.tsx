@@ -1,236 +1,130 @@
-import type { ResourceWithDetails } from '~/api/supabase/queries/resources';
-import { useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
-  Linking,
   RefreshControl,
-  StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { typography } from '@/styles/typography';
-import { getResources } from '~/api/supabase/queries/resources';
-
-// TODO: swap for an alias import (e.g. '@/api/supabase/queries/resources') if your tsconfig maps one.
-
-/** Join the parts that exist, e.g. "123 Main St, Oakland, CA 94601". */
-function formatAddress(parts: {
-  street_address?: string | null;
-  city?: string | null;
-  state?: string | null;
-  zip_code?: string | null;
-}) {
-  const cityState = [parts.city, parts.state].filter(Boolean).join(', ');
-  const cityStateZip = [cityState, parts.zip_code].filter(Boolean).join(' ');
-  return [parts.street_address, cityStateZip].filter(Boolean).join(', ');
-}
-
-function openLink(url: string) {
-  Linking.openURL(url).catch(() => {
-    // Nothing useful to show for now; final handling comes with the designs.
-  });
-}
-
-function withProtocol(website: string) {
-  return /^https?:\/\//i.test(website) ? website : `https://${website}`;
-}
-
-function ResourceCard({ resource }: { resource: ResourceWithDetails }) {
-  const address = formatAddress(resource);
-  const serviceAreas = resource.resource_service_area
-    .map(area => formatAddress(area))
-    .filter(Boolean);
-
-  return (
-    <View style={styles.card}>
-      <Text style={styles.name}>{resource.name}</Text>
-
-      {resource.resource_category_map.length > 0 && (
-        <Text style={styles.categories}>
-          {resource.resource_category_map.map(c => c.category).join(' · ')}
-        </Text>
-      )}
-
-      {!!resource.description && (
-        <Text style={styles.body}>{resource.description}</Text>
-      )}
-      {!!address && <Text style={styles.body}>{address}</Text>}
-
-      {!!resource.website && (
-        <Text
-          style={styles.link}
-          onPress={() => openLink(withProtocol(resource.website!))}
-        >
-          {resource.website}
-        </Text>
-      )}
-
-      {serviceAreas.length > 0 && (
-        <Text style={styles.body}>Serves: {serviceAreas.join('; ')}</Text>
-      )}
-
-      {resource.resource_contact.map(contact => (
-        <View key={contact.id} style={styles.contact}>
-          {!!contact.name && (
-            <Text style={styles.contactName}>{contact.name}</Text>
-          )}
-          {!!contact.phone_number && (
-            <Text
-              style={styles.link}
-              onPress={() => openLink(`tel:${contact.phone_number}`)}
-            >
-              {contact.phone_number}
-            </Text>
-          )}
-          {!!contact.email_address && (
-            <Text
-              style={styles.link}
-              onPress={() => openLink(`mailto:${contact.email_address}`)}
-            >
-              {contact.email_address}
-            </Text>
-          )}
-          {!!contact.street_address && (
-            <Text style={styles.body}>{contact.street_address}</Text>
-          )}
-        </View>
-      ))}
-
-      {!!resource.verified_at && (
-        <Text style={styles.meta}>
-          Verified {new Date(resource.verified_at).toLocaleDateString()}
-        </Text>
-      )}
-    </View>
-  );
-}
+import { useRouter } from 'expo-router';
+import ResourceCategoryCard from '@/components/Resources/ResourceCategoryCard';
+import ResourceRefreshNotice from '@/components/Resources/ResourceRefreshNotice';
+import ResourceSearchBar from '@/components/Resources/ResourceSearchBar';
+import ResourceStatus from '@/components/Resources/ResourceStatus';
+import { useResources } from '@/context/ResourcesContext';
+import colors from '@/styles/colors';
+import styles from '@/styles/resourceStyles';
+import { filterCategoryResources } from '@/utils/resourceCatalog';
 
 export default function ResourcesScreen() {
-  const [resources, setResources] = useState<ResourceWithDetails[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      setError(null);
-      setResources(await getResources());
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : 'Something went wrong loading resources.',
-      );
-    }
-  }, []);
-
-  // Reload every time the tab comes into focus, so edits made in Retool show up.
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(true);
-      load().finally(() => setLoading(false));
-    }, [load]),
+  const router = useRouter();
+  const { width, fontScale } = useWindowDimensions();
+  const { resources, categories, loading, refreshing, error, refresh } =
+    useResources();
+  const [search, setSearch] = useState('');
+  const columns = width < 360 || fontScale > 1.3 ? 1 : 2;
+  const visibleCategories = useMemo(
+    () =>
+      categories
+        .map(category => ({
+          category,
+          count: filterCategoryResources(category, search).length,
+        }))
+        .filter(item => item.count > 0),
+    [categories, search],
   );
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await load();
-    setRefreshing(false);
-  }, [load]);
-
   return (
-    <SafeAreaView edges={['top']} style={styles.container}>
-      <View style={styles.header}>
-        <Text accessibilityRole="header" style={styles.title}>
-          Resources
-        </Text>
-      </View>
+    <SafeAreaView edges={['top']} style={styles.screen}>
       <FlatList
-        data={resources}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => <ResourceCard resource={item} />}
-        contentContainerStyle={styles.list}
+        key={columns}
+        numColumns={columns}
+        data={visibleCategories}
+        keyExtractor={item => item.category.id}
+        style={styles.catalog}
+        contentContainerStyle={styles.listContent}
+        columnWrapperStyle={columns === 2 ? styles.categoryRow : undefined}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing && !loading}
+            onRefresh={() => void refresh()}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
         }
+        ListHeaderComponent={
+          <View>
+            <View style={styles.header}>
+              <Text accessibilityRole="header" style={styles.title}>
+                Resources
+              </Text>
+              <Text style={styles.subtitle}>
+                Find support that fits your needs. Choose a category to get
+                started.
+              </Text>
+            </View>
+            <ResourceSearchBar value={search} onChangeText={setSearch} />
+            <ResourceRefreshNotice />
+            <View style={styles.sectionHeader}>
+              <Text accessibilityRole="header" style={styles.sectionTitle}>
+                {search.trim() ? 'Matching categories' : 'Browse by type'}
+              </Text>
+              {!loading && !error ? (
+                <Text style={styles.sectionCount}>
+                  {search.trim()
+                    ? `${visibleCategories.length} ${visibleCategories.length === 1 ? 'type' : 'types'}`
+                    : `${resources.length} ${resources.length === 1 ? 'resource' : 'resources'}`}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View
+            style={
+              columns === 2 ? styles.categoryCell : styles.categorySingleCell
+            }
+          >
+            <ResourceCategoryCard
+              category={item.category}
+              count={item.count}
+              onPress={() =>
+                router.push({
+                  pathname: '/(app)/(tabs)/tools/resources/category',
+                  params: { category: item.category.id, search: search.trim() },
+                })
+              }
+            />
+          </View>
+        )}
         ListEmptyComponent={
-          loading ? (
-            <ActivityIndicator style={styles.status} />
-          ) : error ? (
-            <Text style={[styles.status, styles.error]}>{error}</Text>
-          ) : (
-            <Text style={styles.status}>No resources available yet.</Text>
-          )
+          <ResourceStatus
+            loading={loading}
+            error={resources.length === 0 ? error : null}
+            title={search.trim() ? 'No matches found' : undefined}
+            description={
+              search.trim()
+                ? 'Try another service, resource name, or location.'
+                : undefined
+            }
+            actionLabel={
+              error && resources.length === 0
+                ? 'Try again'
+                : search.trim()
+                  ? 'Clear search'
+                  : undefined
+            }
+            onAction={
+              error && resources.length === 0
+                ? () => void refresh()
+                : () => setSearch('')
+            }
+          />
         }
       />
-      <StatusBar style="auto" />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  list: {
-    padding: 16,
-    gap: 12,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-  },
-  title: {
-    ...typography.h2,
-    fontSize: 26,
-    color: '#000',
-  },
-  card: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    gap: 4,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  categories: {
-    fontSize: 12,
-    color: '#666',
-  },
-  body: {
-    fontSize: 14,
-  },
-  link: {
-    fontSize: 14,
-    color: '#0a58ca',
-  },
-  contact: {
-    marginTop: 4,
-    gap: 2,
-  },
-  contactName: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  meta: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  status: {
-    textAlign: 'center',
-    marginTop: 24,
-  },
-  error: {
-    color: '#b00020',
-  },
-});
