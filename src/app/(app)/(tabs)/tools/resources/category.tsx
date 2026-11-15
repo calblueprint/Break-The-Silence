@@ -104,7 +104,7 @@ export default function ResourceCategoryScreen() {
         renderItem={({ item }) => <ResourceCard resource={item} />}
         ListEmptyComponent={
           <ResourceStatus
-            loading={loading}
+            loading={loading || (refreshing && resources.length === 0)}
             error={resources.length === 0 ? error : null}
             title={
               !category

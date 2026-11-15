@@ -6,6 +6,37 @@ export interface ResourceCategory {
   resources: ResourceWithDetails[];
 }
 
+const categoryTypes = {
+  housing: {
+    name: 'Housing',
+    icon: 'home' as const,
+    description: 'Explore housing and shelter services.',
+    background: '#EAF2F9',
+    color: '#365E83',
+  },
+  legal: {
+    name: 'Legal',
+    icon: 'shield' as const,
+    description: 'Explore legal help and advocacy services.',
+    background: '#F1EAF7',
+    color: '#5B2A8C',
+  },
+  'mental health': {
+    name: 'Mental Health',
+    icon: 'heart' as const,
+    description: 'Find care for your emotional well-being.',
+    background: '#F9EBF1',
+    color: '#94496B',
+  },
+};
+
+function getCategoryType(name: string) {
+  const key = name.trim().toLocaleLowerCase();
+  return Object.hasOwn(categoryTypes, key)
+    ? categoryTypes[key as keyof typeof categoryTypes]
+    : undefined;
+}
+
 export function formatResourceAddress(parts: {
   street_address?: string | null;
   city?: string | null;
@@ -58,7 +89,11 @@ export function getResourceCategories(resources: ResourceWithDetails[]) {
         : 'uncategorized';
       if (seen.has(id)) continue;
       seen.add(id);
-      const category = categories.get(id) ?? { id, name, resources: [] };
+      const category = categories.get(id) ?? {
+        id,
+        name: getCategoryType(name)?.name ?? name,
+        resources: [],
+      };
       category.resources.push(resource);
       categories.set(id, category);
     }
@@ -82,90 +117,12 @@ export function filterCategoryResources(
 }
 
 export function getCategoryPresentation(name: string) {
-  if (/legal|law|protect|rights/i.test(name)) {
-    return {
-      icon: 'shield' as const,
-      description: 'Explore legal help and advocacy services.',
+  return (
+    getCategoryType(name) ?? {
+      icon: 'compass' as const,
+      description: 'Explore services and find support that fits.',
       background: '#F1EAF7',
       color: '#5B2A8C',
-    };
-  }
-  if (/hous|shelter|accommodat/i.test(name)) {
-    return {
-      icon: 'home' as const,
-      description: 'Explore housing and shelter services.',
-      background: '#EAF2F9',
-      color: '#365E83',
-    };
-  }
-  if (/counsel|therap|mental|healing|emotional/i.test(name)) {
-    return {
-      icon: 'heart' as const,
-      description: 'Find care for your emotional well-being.',
-      background: '#F9EBF1',
-      color: '#94496B',
-    };
-  }
-  if (/health|medical|hospital/i.test(name)) {
-    return {
-      icon: 'plus-circle' as const,
-      description: 'Explore health and medical care services.',
-      background: '#E8F3EE',
-      color: '#386F57',
-    };
-  }
-  if (/financ|money|benefit|economic/i.test(name)) {
-    return {
-      icon: 'dollar-sign' as const,
-      description: 'Find financial assistance and practical support.',
-      background: '#F8F0DF',
-      color: '#87652A',
-    };
-  }
-  if (/food|meal|nutrition/i.test(name)) {
-    return {
-      icon: 'shopping-bag' as const,
-      description: 'Explore food and everyday essentials.',
-      background: '#F8F0DF',
-      color: '#87652A',
-    };
-  }
-  if (/work|employ|career|job/i.test(name)) {
-    return {
-      icon: 'briefcase' as const,
-      description: 'Explore employment and workplace support.',
-      background: '#EAF2F9',
-      color: '#365E83',
-    };
-  }
-  if (/school|educat|student/i.test(name)) {
-    return {
-      icon: 'book-open' as const,
-      description: 'Find education and student support services.',
-      background: '#F1EAF7',
-      color: '#5B2A8C',
-    };
-  }
-  if (/child|family|parent|youth/i.test(name)) {
-    return {
-      icon: 'users' as const,
-      description: 'Explore support for children and families.',
-      background: '#F9EBF1',
-      color: '#94496B',
-    };
-  }
-  if (/crisis|hotline|helpline/i.test(name)) {
-    return {
-      icon: 'phone' as const,
-      description: 'Find services you can reach out to directly.',
-      background: '#F1EAF7',
-      color: '#5B2A8C',
-    };
-  }
-  return {
-    icon: 'compass' as const,
-    description: 'Explore services and find support that fits.',
-    background: '#F1EAF7',
-    color: '#5B2A8C',
-  };
+    }
+  );
 }

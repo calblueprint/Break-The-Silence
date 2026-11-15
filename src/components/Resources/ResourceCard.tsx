@@ -130,9 +130,7 @@ export default function ResourceCard({
                 accessibilityRole="link"
                 accessibilityLabel={`Call ${contact.name || resource.name} at ${contact.phone_number}`}
                 onPress={() =>
-                  void openLink(
-                    `tel:${contact.phone_number!.replace(/[^\d+]/g, '')}`,
-                  )
+                  void openLink(`tel:${contact.phone_number!.trim()}`)
                 }
                 style={styles.contactLink}
               >

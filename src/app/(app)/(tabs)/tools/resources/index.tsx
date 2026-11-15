@@ -1,11 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import ResourceCategoryCard from '@/components/Resources/ResourceCategoryCard';
@@ -19,11 +13,9 @@ import { filterCategoryResources } from '@/utils/resourceCatalog';
 
 export default function ResourcesScreen() {
   const router = useRouter();
-  const { width, fontScale } = useWindowDimensions();
   const { resources, categories, loading, refreshing, error, refresh } =
     useResources();
   const [search, setSearch] = useState('');
-  const columns = width < 360 || fontScale > 1.3 ? 1 : 2;
   const visibleCategories = useMemo(
     () =>
       categories
@@ -38,13 +30,10 @@ export default function ResourcesScreen() {
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
       <FlatList
-        key={columns}
-        numColumns={columns}
         data={visibleCategories}
         keyExtractor={item => item.category.id}
         style={styles.catalog}
         contentContainerStyle={styles.listContent}
-        columnWrapperStyle={columns === 2 ? styles.categoryRow : undefined}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={
@@ -83,11 +72,7 @@ export default function ResourcesScreen() {
           </View>
         }
         renderItem={({ item }) => (
-          <View
-            style={
-              columns === 2 ? styles.categoryCell : styles.categorySingleCell
-            }
-          >
+          <View style={styles.categoryCell}>
             <ResourceCategoryCard
               category={item.category}
               count={item.count}
@@ -102,7 +87,7 @@ export default function ResourcesScreen() {
         )}
         ListEmptyComponent={
           <ResourceStatus
-            loading={loading}
+            loading={loading || (refreshing && resources.length === 0)}
             error={resources.length === 0 ? error : null}
             title={search.trim() ? 'No matches found' : undefined}
             description={
