@@ -9,9 +9,10 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import Logo from '@/components/Logo';
+import { typography } from '@/styles/typography';
 import { getResources } from '~/api/supabase/queries/resources';
 
 // TODO: swap for an alias import (e.g. '@/api/supabase/queries/resources') if your tsconfig maps one.
@@ -142,7 +143,12 @@ export default function ResourcesScreen() {
   }, [load]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView edges={['top']} style={styles.container}>
+      <View style={styles.header}>
+        <Text accessibilityRole="header" style={styles.title}>
+          Resources
+        </Text>
+      </View>
       <FlatList
         data={resources}
         keyExtractor={item => item.id}
@@ -150,12 +156,6 @@ export default function ResourcesScreen() {
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Logo />
-            <Text style={styles.title}>Resources</Text>
-          </View>
         }
         ListEmptyComponent={
           loading ? (
@@ -168,7 +168,7 @@ export default function ResourcesScreen() {
         }
       />
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -182,13 +182,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginTop: 8,
+    ...typography.h2,
+    fontSize: 26,
+    color: '#000',
   },
   card: {
     borderWidth: 1,

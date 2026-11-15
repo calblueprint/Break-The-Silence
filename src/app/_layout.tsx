@@ -8,6 +8,7 @@ import { useFonts } from '@expo-google-fonts/montserrat/useFonts';
 import { NunitoSans_400Regular } from '@expo-google-fonts/nunito-sans/400Regular';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Session } from '@supabase/supabase-js';
+import colors from '@/styles/colors';
 import supabase from '../../api/supabase/client';
 
 export default function RootLayout() {
@@ -63,7 +64,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack>
+      <Stack
+        screenOptions={{ contentStyle: { backgroundColor: colors.white } }}
+      >
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
       </Stack>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Image, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Tabs } from 'expo-router';
+import { Tabs, useSegments } from 'expo-router';
 import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
@@ -27,6 +27,8 @@ function TabIcon({
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const segments = useSegments();
+  const isGuideCompletion = segments[segments.length - 1] === 'completed';
 
   return (
     <View style={styles.container}>
@@ -36,6 +38,7 @@ export default function TabsLayout() {
           tabBarStyle: [
             styles.tabBar,
             { marginBottom: Math.max(insets.bottom, 16) },
+            isGuideCompletion && { display: 'none' },
           ],
           tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: colors.navInactive,
@@ -86,9 +89,10 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="documents"
+          name="tools"
           options={{
             title: 'Toolkit',
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon focused={focused}>
                 <Image
@@ -108,6 +112,12 @@ export default function TabsLayout() {
                 <Ionicons name="person-outline" size={24} color={color} />
               </TabIcon>
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="documents"
+          options={{
+            href: null,
           }}
         />
         <Tabs.Screen

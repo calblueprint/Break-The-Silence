@@ -99,7 +99,7 @@ export default function App() {
         <View>
           <Text style={typography.h2}>Quick Links</Text>
           <View style={styles['indented-text']}>
-            <Link style={styles['linked-text']} href="support/resources">
+            <Link style={styles['linked-text']} href="/tools/resources">
               Help Near Me
             </Link>
             <Link style={styles['linked-text']} href="support/support-line">
