@@ -1,4 +1,8 @@
-import type { GuideBlock, GuideSection, ImageBlock } from '@/data/guidesTypes';
+import type {
+  GuideBlock,
+  GuideContentSectionData,
+  ImageBlock,
+} from '@/data/guidesTypes';
 import { useState } from 'react';
 import {
   Alert,
@@ -10,7 +14,9 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { guideSectionStyles as styles } from '@/styles/guidesStyles';
+import { Feather } from '@expo/vector-icons';
+import colors from '@/styles/colors';
+import { guideContentSectionStyles as styles } from '@/styles/guideContentStyles';
 import { typography } from '@/styles/typography';
 
 async function openResourceUrl(url: string) {
@@ -95,35 +101,49 @@ function renderBlock(
     }
     case 'resource': {
       const resourceUrl = block.url;
+      const description = block.description ?? block.phone;
       return (
-        <View>
-          <Text style={[typography.entryLink, styles.blockTitle]}>
-            {block.title}
-          </Text>
-          {block.description ? (
-            <Text style={[typography.p2, styles.paragraph]}>
-              {block.description}
-            </Text>
-          ) : null}
-          {block.phone ? (
-            <Pressable
-              accessibilityRole="link"
-              onPress={() =>
-                openResourceUrl(`tel:${block.phone?.replace(/[^\d+]/g, '')}`)
-              }
-            >
-              <Text style={[typography.p2, styles.link, styles.paragraph]}>
-                {block.phone}
-              </Text>
-            </Pressable>
-          ) : null}
+        <View style={styles.resourceCard}>
+          <View style={styles.resourceHeader}>
+            <View style={styles.resourceDetails}>
+              <Text style={styles.resourceTitle}>{block.title}</Text>
+              {description ? (
+                <Text style={styles.resourceDescription}>{description}</Text>
+              ) : null}
+            </View>
+            {block.phone || resourceUrl ? (
+              <View style={styles.resourceActions}>
+                {block.phone ? (
+                  <Pressable
+                    accessibilityRole="link"
+                    onPress={() => {
+                      void openResourceUrl(
+                        `tel:${block.phone?.replace(/[^\d+]/g, '')}`,
+                      );
+                    }}
+                    style={styles.resourceAction}
+                  >
+                    <Text style={styles.resourceActionLabel}>Call</Text>
+                  </Pressable>
+                ) : null}
+                {resourceUrl ? (
+                  <Pressable
+                    accessibilityRole="link"
+                    onPress={() => onWebsitePress(resourceUrl)}
+                    style={styles.resourceAction}
+                  >
+                    <Feather
+                      name="arrow-right"
+                      size={16}
+                      color={colors.white}
+                    />
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
           {resourceUrl ? (
-            <Pressable
-              accessibilityRole="link"
-              onPress={() => onWebsitePress(resourceUrl)}
-            >
-              <Text style={[typography.p2, styles.link]}>{resourceUrl}</Text>
-            </Pressable>
+            <Text style={styles.resourceUrl}>{resourceUrl}</Text>
           ) : null}
         </View>
       );
@@ -193,10 +213,10 @@ function GuideImage({
   );
 }
 
-export default function GuideSectionView({
-  guideSection,
+export default function GuideContentSection({
+  contentSection,
 }: {
-  guideSection: GuideSection;
+  contentSection: GuideContentSectionData;
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [websiteUrl, setWebsiteUrl] = useState<string | null>(null);
@@ -205,21 +225,21 @@ export default function GuideSectionView({
 
   return (
     <>
-      <View style={styles.section}>
+      <View style={styles.contentSection}>
         <Text
           style={[
-            guideSection.headingSize === 'large'
+            contentSection.headingSize === 'large'
               ? typography.h2
               : typography.h4,
           ]}
         >
-          {guideSection.title}
+          {contentSection.title}
         </Text>
-        <View style={styles.sectionContent}>
-          {guideSection.description ? (
-            <Text style={typography.p2}>{guideSection.description}</Text>
+        <View style={styles.contentSectionBlocks}>
+          {contentSection.description ? (
+            <Text style={typography.p2}>{contentSection.description}</Text>
           ) : null}
-          {guideSection.blocks.map(block => (
+          {contentSection.blocks.map(block => (
             <View key={block.id}>
               {renderBlock(block, imageWidth, imageMaxHeight, setWebsiteUrl)}
             </View>

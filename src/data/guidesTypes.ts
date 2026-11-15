@@ -1,9 +1,11 @@
 export type HeadingSize = 'normal' | 'large';
 
-export interface Guide {
+export interface DetailedGuide {
   id: string;
   slug: string;
   title: string;
+  imageUrl: string;
+  isBookmarked: boolean;
   description?: string;
   category:
     | 'Self-Development'
@@ -13,10 +15,10 @@ export interface Guide {
     | 'Legal'
     | 'Personal Growth'
     | 'Finances';
-  sections: GuideSection[];
+  sections: GuideContentSectionData[];
 }
 
-export interface GuideSection {
+export interface GuideContentSectionData {
   id: string;
   title: string;
   description?: string;

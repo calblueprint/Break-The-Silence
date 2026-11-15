@@ -5,6 +5,7 @@ export default function GuidesLayout() {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="[slug]" options={{ headerShown: false }} />
+      <Stack.Screen name="completed" options={{ headerShown: false }} />
     </Stack>
   );
 }

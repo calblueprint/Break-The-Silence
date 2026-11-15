@@ -16,11 +16,6 @@ export default function Support() {
           <Column spacing={15} alignment="start">
             <Button
               style={{ width: buttonWidth, height: buttonHeight }}
-              label="Resources"
-              onPress={() => router.navigate('/support/resources')}
-            />
-            <Button
-              style={{ width: buttonWidth, height: buttonHeight }}
               label="Support Line"
               onPress={() => router.navigate('/support/support-line')}
             />

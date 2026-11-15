@@ -1,11 +1,13 @@
-import type { Guide } from './guidesTypes';
+import type { DetailedGuide } from './guidesTypes';
 
-export const mockGuides: Guide[] = [
+export const mockGuides: DetailedGuide[] = [
   {
     id: 'guide-risk-assessment',
     slug: 'domestic-violence-risk-assessment-toolkit',
     title: 'Domestic Violence Risk Assessment Toolkit',
     category: 'Safety',
+    imageUrl: '',
+    isBookmarked: true,
     description:
       'Recognizing the risks associated with domestic violence is crucial for survivors to make informed decisions about their safety. This toolkit provides guidance on assessing danger levels, identifying warning signs, and accessing essential resources to develop a personalized safety plan.',
     sections: [
@@ -327,6 +329,8 @@ export const mockGuides: Guide[] = [
     slug: 'survivor-safety-planning-toolkit',
     title: 'Survivor Safety Planning Toolkit',
     category: 'Safety',
+    imageUrl: '',
+    isBookmarked: true,
     description:
       'A Guide to Protecting Yourself Before, During, and After Leaving an Abuser',
     sections: [
@@ -710,6 +714,8 @@ export const mockGuides: Guide[] = [
     slug: 'life-after-abuse-a-survivors-guide-to-moving-forward',
     title: 'Life After Abuse: A Survivor’s Guide to Moving Forward',
     category: 'Healing',
+    imageUrl: '',
+    isBookmarked: false,
     description:
       'Healing after abuse is a journey, and rebuilding life takes time, support, and the right resources. This toolkit is designed to help survivors navigate life after leaving an abusive relationship by providing guidance on emotional recovery, personal empowerment, and practical steps for a fresh start.',
     // Resource URLs below are organization homepages; replace with the exact
@@ -1073,6 +1079,8 @@ export const mockGuides: Guide[] = [
     slug: 'building-healthy-relationships-after-domestic-violence',
     title: 'Building Healthy Relationships After Domestic Violence',
     category: 'Support',
+    imageUrl: '',
+    isBookmarked: false,
     description: 'A Guide to Healing, Trust, and Healthy Connections',
     // The source screenshots have inconsistent numbering/headings: the TOC calls
     // section 1 'Introduction to Healthy Relationships', while the body calls it
@@ -1508,6 +1516,8 @@ export const mockGuides: Guide[] = [
     slug: 'component-guide',
     title: 'Component Guide',
     category: 'Support',
+    imageUrl: '',
+    isBookmarked: false,
     description: 'Component Guide Description here.',
     sections: [
       {

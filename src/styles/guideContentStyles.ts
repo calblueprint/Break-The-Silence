@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import colors from './colors';
 import { montserratBold, typography } from './typography';
 
-export const toolkitListStyles = StyleSheet.create({
+export const guideTableOfContentsStyles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.white,
@@ -85,7 +85,7 @@ export const toolkitListStyles = StyleSheet.create({
   },
 });
 
-export const guidePageStyles = StyleSheet.create({
+export const guideArticlePageStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.white,
@@ -136,7 +136,7 @@ export const guidePageStyles = StyleSheet.create({
   },
 });
 
-export const guideSectionStyles = StyleSheet.create({
+export const guideContentSectionStyles = StyleSheet.create({
   websitePromptOverlay: {
     flex: 1,
     alignItems: 'center',
@@ -186,12 +186,61 @@ export const guideSectionStyles = StyleSheet.create({
     ...typography.p1,
     color: colors.white,
   },
-  section: {
+  contentSection: {
     width: '100%',
     marginBottom: 12,
   },
-  sectionContent: {
+  contentSectionBlocks: {
     gap: 12,
+  },
+  resourceCard: {
+    gap: 4,
+    padding: 10,
+    borderRadius: 14,
+    backgroundColor: '#F6F7F9',
+  },
+  resourceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  resourceDetails: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+  },
+  resourceTitle: {
+    ...typography.p2,
+    color: colors.text,
+    fontWeight: '700',
+  },
+  resourceDescription: {
+    ...typography.p3,
+    color: colors.textMuted,
+  },
+  resourceUrl: {
+    ...typography.p3,
+    width: '100%',
+    color: colors.primary,
+  },
+  resourceActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  resourceAction: {
+    minWidth: 34,
+    minHeight: 30,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+  },
+  resourceActionLabel: {
+    ...typography.p3,
+    color: colors.white,
   },
   blockTitle: {
     marginBottom: 6,
