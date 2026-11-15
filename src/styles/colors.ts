@@ -18,6 +18,10 @@ const colors = {
   toastBackground: '#475569',
   safeExit: '#3E24C4',
   navInactive: '#94A3B8',
+  // Named after the Figma color variables (Mid-Fi designs)
+  slate100: '#F1F5F9',
+  slate400: '#94A3B8',
+  slate600: '#475569',
 };
 
 export default colors;
