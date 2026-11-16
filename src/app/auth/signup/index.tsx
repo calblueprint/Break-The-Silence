@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
@@ -70,114 +78,127 @@ export default function SignUpPage() {
   }
 
   return (
-    <View style={styles.container}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Back"
-        style={shared.backButton}
-        onPress={() => {
-          if (router.canGoBack()) router.back();
-          else router.replace('/auth/login');
-        }}
+    // Moves the form up and lets it scroll so the keyboard never covers the
+    // field being typed in or the Create button
+    <KeyboardAvoidingView
+      style={styles.keyboardContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
       >
-        <BackArrowIcon style={shared.backArrowIcon} />
-      </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          style={shared.backButton}
+          onPress={() => {
+            if (router.canGoBack()) router.back();
+            else router.replace('/auth/login');
+          }}
+        >
+          <BackArrowIcon style={shared.backArrowIcon} />
+        </Pressable>
 
-      <Text style={shared.title}>Create an Account</Text>
-      <Text style={styles.subtitle}>
-        We need a couple more details from you
-      </Text>
-      <Text style={styles.securedText}>Your information is secured.</Text>
+        <Text style={shared.title}>Create an Account</Text>
+        <Text style={styles.subtitle}>
+          We need a couple more details from you
+        </Text>
+        <Text style={styles.securedText}>Your information is secured.</Text>
 
-      <View style={styles.row}>
-        <View style={styles.halfField}>
-          <Text style={shared.label}>First name</Text>
-          <TextInput
-            style={[styles.input, firstNameFocused && shared.inputFocused]}
-            value={firstName}
-            onChangeText={setFirstName}
-            onFocus={() => setFirstNameFocused(true)}
-            onBlur={() => setFirstNameFocused(false)}
-          />
+        <View style={styles.row}>
+          <View style={styles.halfField}>
+            <Text style={shared.label}>First name</Text>
+            <TextInput
+              style={[styles.input, firstNameFocused && shared.inputFocused]}
+              value={firstName}
+              onChangeText={setFirstName}
+              onFocus={() => setFirstNameFocused(true)}
+              onBlur={() => setFirstNameFocused(false)}
+            />
+          </View>
+          <View style={styles.halfField}>
+            <Text style={shared.label}>Last name</Text>
+            <TextInput
+              style={[styles.input, lastNameFocused && shared.inputFocused]}
+              value={lastName}
+              onChangeText={setLastName}
+              onFocus={() => setLastNameFocused(true)}
+              onBlur={() => setLastNameFocused(false)}
+            />
+          </View>
         </View>
-        <View style={styles.halfField}>
-          <Text style={shared.label}>Last name</Text>
-          <TextInput
-            style={[styles.input, lastNameFocused && shared.inputFocused]}
-            value={lastName}
-            onChangeText={setLastName}
-            onFocus={() => setLastNameFocused(true)}
-            onBlur={() => setLastNameFocused(false)}
-          />
-        </View>
-      </View>
 
-      <View style={shared.field}>
-        <Text style={shared.label}>Password</Text>
-        <View style={shared.passwordWrapper}>
+        <View style={shared.field}>
+          <Text style={shared.label}>Password</Text>
+          <View style={shared.passwordWrapper}>
+            <TextInput
+              style={[
+                styles.input,
+                shared.passwordInput,
+                passwordFocused && shared.inputFocused,
+              ]}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+            />
+            <Pressable
+              style={shared.eyeButton}
+              onPress={() => setShowPassword(prev => !prev)}
+            >
+              {showPassword ? (
+                <EyeIconOpen style={shared.eyeIcon} />
+              ) : (
+                <EyeIcon style={shared.eyeIcon} />
+              )}
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={shared.field}>
+          <Text style={shared.label}>Confirm password</Text>
           <TextInput
             style={[
               styles.input,
-              shared.passwordInput,
-              passwordFocused && shared.inputFocused,
+              confirmPasswordFocused && shared.inputFocused,
             ]}
             secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-            onFocus={() => setPasswordFocused(true)}
-            onBlur={() => setPasswordFocused(false)}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            onFocus={() => setConfirmPasswordFocused(true)}
+            onBlur={() => setConfirmPasswordFocused(false)}
           />
-          <Pressable
-            style={shared.eyeButton}
-            onPress={() => setShowPassword(prev => !prev)}
-          >
-            {showPassword ? (
-              <EyeIconOpen style={shared.eyeIcon} />
-            ) : (
-              <EyeIcon style={shared.eyeIcon} />
-            )}
-          </Pressable>
         </View>
-      </View>
 
-      <View style={shared.field}>
-        <Text style={shared.label}>Confirm password</Text>
-        <TextInput
-          style={[styles.input, confirmPasswordFocused && shared.inputFocused]}
-          secureTextEntry={!showPassword}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          onFocus={() => setConfirmPasswordFocused(true)}
-          onBlur={() => setConfirmPasswordFocused(false)}
+        <View style={shared.field}>
+          <Text style={shared.label}>Email</Text>
+          <TextInput
+            style={[styles.input, emailFocused && shared.inputFocused]}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            onFocus={() => setEmailFocused(true)}
+            onBlur={() => setEmailFocused(false)}
+          />
+        </View>
+
+        {error ? <Text style={shared.error}>{error}</Text> : null}
+        {message ? <Text style={styles.message}>{message}</Text> : null}
+
+        <Button
+          text={loading ? 'Creating account...' : 'Create an account'}
+          disabled={!isFilled || loading}
+          onPress={handleSignUp}
+          containerStyle={shared.fullWidth}
+          buttonStyle={submitButtonStyle(isFilled)}
+          titleStyle={submitButtonTitleStyle(isFilled)}
         />
-      </View>
-
-      <View style={shared.field}>
-        <Text style={shared.label}>Email</Text>
-        <TextInput
-          style={[styles.input, emailFocused && shared.inputFocused]}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          onFocus={() => setEmailFocused(true)}
-          onBlur={() => setEmailFocused(false)}
-        />
-      </View>
-
-      {error ? <Text style={shared.error}>{error}</Text> : null}
-      {message ? <Text style={styles.message}>{message}</Text> : null}
-
-      <Button
-        text={loading ? 'Creating account...' : 'Create an account'}
-        disabled={!isFilled || loading}
-        onPress={handleSignUp}
-        containerStyle={shared.fullWidth}
-        buttonStyle={submitButtonStyle(isFilled)}
-        titleStyle={submitButtonTitleStyle(isFilled)}
-      />
-
+      </ScrollView>
       <StatusBar style="auto" />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
