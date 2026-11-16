@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
-import EyeIconOpen from '~/assets/AiOutlineEye.svg';
-import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
-import BTSADVLogo from '~/assets/btsdav-logo.png';
-import { signIn } from '../../../../api/supabase/auth';
 import {
   shared,
   loginStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
-} from '../styles';
+} from '@/styles/authStyles';
+import EyeIconOpen from '~/assets/AiOutlineEye.svg';
+import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
+import BTSADVLogo from '~/assets/btsdav-logo.png';
+import BackArrowIcon from '~/assets/Vector.svg';
+import { signIn } from '../../../../api/supabase/auth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,6 +48,14 @@ export default function LoginPage() {
 
   return (
     <View style={styles.container}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back to welcome"
+        style={[styles.backButton, { top: Math.max(insets.top, 16) }]}
+        onPress={() => router.dismissTo('/')}
+      >
+        <BackArrowIcon style={shared.backArrowIcon} />
+      </Pressable>
       <Image source={BTSADVLogo} style={styles.logo} resizeMode="contain" />
       <Text style={styles.signInText}>Sign In</Text>
       <View style={styles.divider} />

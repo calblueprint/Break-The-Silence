@@ -1,11 +1,38 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import useIsMountedRef from '@/hooks/useIsMountedRef';
 //import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '@/styles/colors';
+import { montserratBold, typography } from '@/styles/typography';
+import { signOut } from '~/api/supabase/auth';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const [signingOut, setSigningOut] = useState(false);
+  const isMounted = useIsMountedRef();
+
+  async function handleSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOut();
+      // RootLayout observes SIGNED_OUT and redirects to /auth/login.
+    } catch {
+      if (isMounted.current)
+        Alert.alert('Unable to log out', 'Please try again.');
+    } finally {
+      if (isMounted.current) setSigningOut(false);
+    }
+  }
   //const insets = useSafeAreaInsets();
 
   return (
@@ -85,8 +112,17 @@ export default function ProfileScreen() {
             <Feather name="chevron-right" size={20} color={colors.textMuted} />
           </Pressable>
           <View style={styles.divider} />
-          <Pressable style={styles.listItem}>
-            <Text style={styles.listItemText}>Log out</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Log out"
+            accessibilityState={{ disabled: signingOut, busy: signingOut }}
+            style={styles.listItem}
+            disabled={signingOut}
+            onPress={() => void handleSignOut()}
+          >
+            <Text style={styles.listItemText}>
+              {signingOut ? 'Logging out…' : 'Log out'}
+            </Text>
           </Pressable>
         </View>
       </ScrollView>
@@ -109,10 +145,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerTitle: {
+    ...montserratBold,
     fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    fontFamily: 'Montserrat',
+    color: colors.black,
   },
   userInfoContainer: {
     flexDirection: 'row',
@@ -138,10 +173,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   userName: {
+    ...montserratBold,
     fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    fontFamily: 'Montserrat',
+    color: colors.black,
   },
   editProfileText: {
     fontSize: 14,
@@ -165,11 +199,10 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   featureCardTitle: {
+    ...montserratBold,
     fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+    color: colors.black,
     marginBottom: 4,
-    fontFamily: 'Nunito Sans',
   },
   featureCardSubtitle: {
     fontSize: 13,
@@ -185,11 +218,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
+    ...typography.h4,
+    lineHeight: 26,
+    color: colors.black,
     marginBottom: 16,
-    fontFamily: 'Montserrat',
   },
   listContainer: {
     backgroundColor: '#F8FAFC',

@@ -4,14 +4,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '@/components/Button/Button';
 import Logo from '@/components/Logo';
-import { signOut, updatePassword } from '../../../../api/supabase/auth';
-import supabase from '../../../../api/supabase/client';
 import {
   shared,
   updatePasswordStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
-} from '../styles';
+} from '@/styles/authStyles';
+import { signOut, updatePassword } from '../../../../api/supabase/auth';
+import supabase from '../../../../api/supabase/client';
 
 export default function UpdatePassword() {
   const params = useLocalSearchParams<{

@@ -3,17 +3,17 @@ import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
-import BackArrowIcon from '~/assets/Vector.svg';
-import {
-  resendSignupCode,
-  verifySignupCode,
-} from '../../../../api/supabase/auth';
 import {
   shared,
   verifyCodeStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
-} from '../styles';
+} from '@/styles/authStyles';
+import BackArrowIcon from '~/assets/Vector.svg';
+import {
+  resendSignupCode,
+  verifySignupCode,
+} from '../../../../api/supabase/auth';
 
 type VerificationError = {
   title: string;
@@ -97,7 +97,15 @@ export default function VerifyCodePage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={shared.backButton} onPress={() => router.back()}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back"
+        style={shared.backButton}
+        onPress={() => {
+          if (router.canGoBack()) router.back();
+          else router.replace('/auth/login');
+        }}
+      >
         <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 

@@ -1,9 +1,17 @@
-import React, { ComponentProps, useEffect, useState } from 'react';
+import React, {
+  ComponentProps,
+  ComponentRef,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
-  Dimensions,
   Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -11,6 +19,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import DocumentNameEditor from '@/components/documents/DocumentNameEditor';
 import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
 
@@ -20,6 +29,7 @@ interface ActionButtonProps {
   iconColor: string;
   bgColor: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
 interface DocumentViewerProps {
@@ -29,7 +39,11 @@ interface DocumentViewerProps {
   fileName?: string;
   isSensitive?: boolean;
   onClose: () => void;
+  onExit?: () => void;
   onShare?: () => void;
+  onDelete?: () => void;
+  onRename?: (name: string) => Promise<void>;
+  isDeleting?: boolean;
 }
 
 export default function DocumentViewer({
@@ -39,114 +53,167 @@ export default function DocumentViewer({
   fileName = 'Document',
   isSensitive = true,
   onClose,
+  onExit,
   onShare,
+  onDelete,
+  onRename,
+  isDeleting = false,
 }: DocumentViewerProps) {
   const insets = useSafeAreaInsets();
   const [isRevealed, setIsRevealed] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  const editorVersion = useRef(0);
 
   useEffect(() => {
-    if (!visible) {
-      setIsRevealed(false);
-    }
-  }, [visible]);
+    setIsRevealed(false);
+    setIsRenaming(false);
+    editorVersion.current += 1;
+  }, [visible, fileUrl]);
 
   if (!visible || !fileUrl) return null;
 
   const isImage = mimeType?.startsWith('image/');
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={[styles.container, { paddingTop: insets.top }]}
+      >
         <View style={styles.header}>
           <Pressable onPress={onClose} style={styles.backButton}>
             <Feather name="arrow-left" size={24} color="black" />
             <Text style={styles.headerText}>Evidence</Text>
           </Pressable>
 
-          <SafeExitButton />
+          <SafeExitButton
+            onExit={() => {
+              setIsRevealed(false);
+              (onExit ?? onClose)();
+            }}
+          />
         </View>
 
-        <View style={styles.fileInfoContainer}>
-          <Text style={styles.fileName}>{fileName}</Text>
-          <Text style={styles.fileDate}>Added today</Text>
-        </View>
-
-        <View style={styles.contentContainer}>
-          {isImage ? (
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{ uri: fileUrl }}
-                style={styles.image}
-                resizeMode="cover"
+        <ScrollView
+          ref={scroll}
+          testID="document-viewer-scroll"
+          style={styles.scrollView}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 20) }}
+        >
+          <View style={styles.fileInfoContainer}>
+            <Text style={styles.fileName}>{fileName}</Text>
+            <Text style={styles.fileDate}>Added today</Text>
+            {isRenaming && onRename && (
+              <DocumentNameEditor
+                name={fileName}
+                onCancel={() => setIsRenaming(false)}
+                onSave={async name => {
+                  const version = editorVersion.current;
+                  await onRename(name);
+                  if (version === editorVersion.current) setIsRenaming(false);
+                }}
               />
+            )}
+          </View>
 
-              {isSensitive && !isRevealed && (
-                <BlurView
-                  intensity={80}
-                  tint="dark"
-                  style={StyleSheet.absoluteFill}
+          <View style={styles.contentContainer}>
+            {isImage ? (
+              <View style={styles.imageWrapper}>
+                <Image
+                  source={{ uri: fileUrl }}
+                  style={styles.image}
+                  resizeMode="cover"
                 />
-              )}
 
-              {isSensitive && (
-                <View style={styles.revealButtonContainer}>
-                  <Pressable
-                    style={styles.revealButton}
-                    onPress={() => setIsRevealed(!isRevealed)}
+                {isSensitive && !isRevealed && (
+                  <BlurView
+                    intensity={80}
+                    tint="dark"
+                    style={StyleSheet.absoluteFill}
+                  />
+                )}
+
+                {isSensitive && (
+                  <View
+                    pointerEvents="box-none"
+                    style={styles.revealButtonContainer}
                   >
-                    <Ionicons
-                      name={isRevealed ? 'eye-outline' : 'eye-off-outline'}
-                      size={20}
-                      color="white"
-                    />
-                    <Text style={styles.revealText}>
-                      {isRevealed ? 'Hide' : 'Tap to view'}
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          ) : (
-            <View style={styles.placeholderBox}>
-              <Feather name="file-text" size={64} color={colors.textMuted} />
-              <Text style={styles.placeholderText}>Document Viewer</Text>
-            </View>
-          )}
-        </View>
+                    <Pressable
+                      style={styles.revealButton}
+                      onPress={() => setIsRevealed(!isRevealed)}
+                    >
+                      <Ionicons
+                        name={isRevealed ? 'eye-outline' : 'eye-off-outline'}
+                        size={20}
+                        color="white"
+                      />
+                      <Text style={styles.revealText}>
+                        {isRevealed ? 'Hide' : 'Tap to view'}
+                      </Text>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View style={styles.placeholderBox}>
+                <Feather name="file-text" size={64} color={colors.textMuted} />
+                <Text style={styles.placeholderText}>Document Viewer</Text>
+              </View>
+            )}
+          </View>
 
-        <View style={styles.actionRow}>
-          <ActionButton
-            icon="share-2"
-            label="Share"
-            iconColor={colors.primary}
-            bgColor="#F3E8FF"
-            onPress={onShare}
-          />
-          <ActionButton
-            icon="folder"
-            label="Move"
-            iconColor="#666"
-            bgColor="#F5F5F5"
-          />
-          <ActionButton
-            icon="edit-2"
-            label="Rename"
-            iconColor="#666"
-            bgColor="#F5F5F5"
-          />
-          <ActionButton
-            icon="trash-2"
-            label="Delete"
-            iconColor={colors.error}
-            bgColor="#FEE2E2"
-          />
-        </View>
+          <View style={styles.actionRow}>
+            <ActionButton
+              icon="share-2"
+              label="Share"
+              iconColor={colors.primary}
+              bgColor="#F3E8FF"
+              onPress={onShare}
+            />
+            <ActionButton
+              icon="folder"
+              label="Move"
+              iconColor="#666"
+              bgColor="#F5F5F5"
+            />
+            <ActionButton
+              icon="edit-2"
+              label="Rename"
+              iconColor={colors.primary}
+              bgColor="#F3E8FF"
+              onPress={
+                onRename
+                  ? () => {
+                      setIsRenaming(true);
+                      scroll.current?.scrollTo({ y: 0, animated: true });
+                    }
+                  : undefined
+              }
+              disabled={isDeleting || isRenaming}
+            />
+            <ActionButton
+              icon="trash-2"
+              label={isDeleting ? 'Deleting…' : 'Delete'}
+              iconColor={colors.error}
+              bgColor="#FEE2E2"
+              onPress={onDelete}
+              disabled={isDeleting || isRenaming}
+            />
+          </View>
 
-        <View style={styles.metaBox}>
-          <Text style={styles.metaLabel}>Date it happened</Text>
-          <Text style={styles.metaValue}>Nov 4, 2026</Text>
-        </View>
-      </View>
+          <View style={styles.metaBox}>
+            <Text style={styles.metaLabel}>Date it happened</Text>
+            <Text style={styles.metaValue}>Nov 4, 2026</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -157,9 +224,16 @@ const ActionButton = ({
   iconColor,
   bgColor,
   onPress,
+  disabled = false,
 }: ActionButtonProps) => (
   <View style={styles.actionButtonWrapper}>
-    <Pressable style={styles.actionButton} onPress={onPress}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={styles.actionButton}
+      onPress={onPress}
+      disabled={disabled || !onPress}
+    >
       <View style={[styles.actionIconBg, { backgroundColor: bgColor }]}>
         <Feather name={icon} size={20} color={iconColor} />
       </View>
@@ -168,12 +242,13 @@ const ActionButton = ({
   </View>
 );
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -212,8 +287,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageWrapper: {
-    width: width - 40,
-    height: width - 40,
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
@@ -242,7 +317,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   placeholderBox: {
-    width: width - 40,
+    width: '100%',
     height: 300,
     backgroundColor: '#F5F5F5',
     borderRadius: 16,

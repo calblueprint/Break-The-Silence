@@ -1,8 +1,11 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import type { ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,19 +19,31 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import DocumentNameEditor from '@/components/documents/DocumentNameEditor';
 import DocumentViewer from '@/components/documents/DocumentViewer';
+import SafeExitButton from '@/components/SafeExitButton';
+import useIsMountedRef from '@/hooks/useIsMountedRef';
 import colors from '@/styles/colors';
+import guideDetailStyles from '@/styles/guideDetailStyles';
+import {
+  getDocumentDisplayName,
+  isSensitiveDocument,
+  MAX_DOCUMENT_FILE_SIZE_BYTES,
+} from '@/utils/documentFiles';
+import { getDocumentUploadError } from '@/utils/documentUploadErrors';
 import {
   deleteFileFromSupabase,
   fetchUploadedFiles,
   getSecureFileUrl,
-  shareFileWithUser,
+  removeSharedFile,
+  renameDocument,
   uploadFileToSupabase,
 } from '../../../../../../api/supabase/storage/documents';
 
 interface UploadedFile {
   id: string | null;
   name: string;
+  displayName?: string;
   fullPath: string;
   metadata?: {
     mimetype?: string;
@@ -40,6 +55,15 @@ interface UploadedFile {
 export default function MyDocumentsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const isMounted = useIsMountedRef();
+  const exitRequested = useRef(false);
+  const deletionInProgress = useRef(false);
+  const renameInProgress = useRef(false);
+  const currentFullPathRef = useRef<string | null>(null);
+  const isActive = useCallback(
+    () => isMounted.current && !exitRequested.current,
+    [isMounted],
+  );
 
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [viewerVisible, setViewerVisible] = useState(false);
@@ -56,19 +80,48 @@ export default function MyDocumentsScreen() {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [isSensitiveUpload, setIsSensitiveUpload] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [editingUploadIndex, setEditingUploadIndex] = useState<number | null>(
+    null,
+  );
 
-  useEffect(() => {
-    loadFiles();
+  const closeViewer = useCallback(() => {
+    currentFullPathRef.current = null;
+    setViewerVisible(false);
+    setCurrentViewUrl(null);
+    setCurrentMimeType(undefined);
+    setCurrentFileName('Document');
+    setCurrentFullPath(null);
   }, []);
 
-  const loadFiles = async () => {
+  const closeUploadModal = useCallback(() => {
+    setUploadModalVisible(false);
+    setSelectedUploads([]);
+    setIsSensitiveUpload(false);
+    setEditingUploadIndex(null);
+  }, []);
+
+  const handleSafeExit = () => {
+    // Close native modals before navigation, and ignore pending async results.
+    exitRequested.current = true;
+    closeUploadModal();
+    closeViewer();
+    setFiles([]);
+    setLoading(false);
+  };
+
+  const loadFiles = useCallback(async () => {
     try {
       const data = await fetchUploadedFiles();
-      setFiles((data as UploadedFile[]) || []);
+      if (isActive()) setFiles((data as UploadedFile[]) || []);
     } catch (error) {
-      console.error(error);
+      if (isActive()) console.error(error);
     }
-  };
+  }, [isActive]);
+
+  useEffect(() => {
+    void loadFiles();
+  }, [loadFiles]);
 
   const handleSelectFiles = async () => {
     try {
@@ -78,26 +131,34 @@ export default function MyDocumentsScreen() {
         multiple: true,
       });
 
-      if (result.canceled) return;
+      if (result.canceled || !isActive()) return;
 
       setSelectedUploads(result.assets);
       setIsSensitiveUpload(true);
       setUploadModalVisible(true);
     } catch (error) {
+      if (!isActive()) return;
       console.error(error);
       Alert.alert('Error', 'Failed to select files.');
     }
   };
 
   const confirmAndUploadFiles = async () => {
+    if (
+      !isActive() ||
+      loading ||
+      editingUploadIndex !== null ||
+      selectedUploads.length === 0
+    )
+      return;
     setLoading(true);
-    const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
-    let hasError = false;
+    const uploadErrors = new Set<string>();
+    let uploadedCount = 0;
 
     for (const file of selectedUploads) {
-      if (file.size && file.size > MAX_FILE_SIZE_BYTES) {
-        Alert.alert('File too large', `${file.name} exceeds 10MB.`);
-        hasError = true;
+      if (!isActive()) return;
+      if (file.size && file.size > MAX_DOCUMENT_FILE_SIZE_BYTES) {
+        uploadErrors.add('Files must be 10 MB or smaller.');
         continue;
       }
 
@@ -110,22 +171,23 @@ export default function MyDocumentsScreen() {
           finalFileName,
           file.mimeType ?? 'application/octet-stream',
         );
+        uploadedCount += 1;
       } catch (err) {
-        console.error('Failed to upload', file.name, err);
-        hasError = true;
+        if (!isActive()) return;
+        uploadErrors.add(getDocumentUploadError(err).userMessage);
       }
     }
 
+    if (!isActive()) return;
     setLoading(false);
-    setUploadModalVisible(false);
-    setSelectedUploads([]);
+    closeUploadModal();
 
-    if (!hasError) {
+    if (uploadErrors.size === 0) {
       Alert.alert('Success', 'All files uploaded securely!');
     } else {
       Alert.alert(
-        'Notice',
-        'Some files uploaded, but there were errors. Check console.',
+        uploadedCount > 0 ? 'Some files were not uploaded' : 'Upload failed',
+        [...uploadErrors].join('\n\n'),
       );
     }
 
@@ -133,94 +195,129 @@ export default function MyDocumentsScreen() {
   };
 
   const handleOpenFile = async (file: UploadedFile) => {
+    if (!isActive()) return;
     try {
       setLoading(true);
       const secureUrl = await getSecureFileUrl(file.fullPath);
+      if (!isActive()) return;
       setCurrentViewUrl(secureUrl);
       setCurrentMimeType(file.metadata?.mimetype);
-      setCurrentFileName(file.name);
+      setCurrentFileName(getDocumentDisplayName(file));
+      currentFullPathRef.current = file.fullPath;
       setCurrentFullPath(file.fullPath);
       setViewerVisible(true);
     } catch (error) {
+      if (!isActive()) return;
       console.error(error);
       Alert.alert('Error', 'Could not open file.');
     } finally {
-      setLoading(false);
+      if (isActive()) setLoading(false);
     }
   };
 
-  const handleDeleteFile = async (fullPath: string) => {
+  const handleDeleteFile = async (file: UploadedFile) => {
+    if (!isActive() || deletionInProgress.current || renameInProgress.current)
+      return;
+    deletionInProgress.current = true;
+    setIsDeleting(true);
     try {
       setLoading(true);
-      await deleteFileFromSupabase(fullPath);
+      if (file.isShared) {
+        if (!file.id) throw new Error('Shared document is unavailable.');
+        await removeSharedFile(file.id);
+      } else {
+        await deleteFileFromSupabase(file.fullPath);
+      }
+      if (!isActive()) return;
+      if (currentFullPathRef.current === file.fullPath) closeViewer();
       await loadFiles();
     } catch (error) {
-      console.error(error);
+      if (!isActive()) return;
+      const { code, status } = getDocumentUploadError(error);
+      console.warn('Document deletion failed', { code, status });
       Alert.alert('Error', 'Failed to delete file.');
     } finally {
-      setLoading(false);
+      deletionInProgress.current = false;
+      if (isActive()) {
+        setIsDeleting(false);
+        setLoading(false);
+      }
     }
   };
 
-  const handleShareFile = (fullPath: string) => {
-    Alert.prompt(
-      'Share Document',
-      "Enter the recipient's exact Supabase User ID:",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Share',
-          onPress: async (recipientId?: string) => {
-            if (!recipientId) return;
-            try {
-              setLoading(true);
-              await shareFileWithUser(fullPath, recipientId);
-              Alert.alert('Success', 'File shared securely!');
-            } catch (error) {
-              console.error(error);
-              Alert.alert('Error', 'Could not share file.');
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ],
-    );
+  const handleRenameFile = async (file: UploadedFile, name: string) => {
+    if (!isActive()) return;
+    if (deletionInProgress.current || renameInProgress.current) {
+      throw new Error('Wait for the current change to finish.');
+    }
+    if (file.isShared || !file.id) {
+      throw new Error('Only the owner can rename this document.');
+    }
+    renameInProgress.current = true;
+    try {
+      const displayName = await renameDocument(file.fullPath, file.id, name);
+      if (!isActive()) return;
+      setFiles(previous =>
+        previous.map(item =>
+          item.fullPath === file.fullPath ? { ...item, displayName } : item,
+        ),
+      );
+      if (currentFullPathRef.current === file.fullPath) {
+        setCurrentFileName(displayName);
+      }
+    } finally {
+      renameInProgress.current = false;
+    }
   };
 
-  const confirmDelete = (filePath: string) => {
+  const handleShareFile = () => {
+    if (!isActive()) return;
+    Alert.alert('Feature in progress');
+  };
+
+  const confirmDelete = (file: UploadedFile) => {
+    if (!isActive() || deletionInProgress.current || renameInProgress.current)
+      return;
     Alert.alert(
-      'Delete Document',
-      'Are you sure you want to permanently delete this file?',
+      file.isShared ? 'Remove Shared Document' : 'Delete Document',
+      file.isShared
+        ? 'Remove this shared document from your list? The owner’s file will be kept.'
+        : 'Are you sure you want to permanently delete this file?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Delete',
+          text: file.isShared ? 'Remove' : 'Delete',
           style: 'destructive',
-          onPress: () => handleDeleteFile(filePath),
+          onPress: () => handleDeleteFile(file),
         },
       ],
     );
   };
 
   const openFileOptions = (file: UploadedFile) => {
-    Alert.alert('File Options', file.name, [
+    Alert.alert('File Options', getDocumentDisplayName(file), [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Share', onPress: () => handleShareFile(file.fullPath) },
+      { text: 'Share', onPress: handleShareFile },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => confirmDelete(file.fullPath),
+        onPress: () => confirmDelete(file),
       },
     ]);
   };
 
+  const currentFile = files.find(file => file.fullPath === currentFullPath);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color="black" />
-          <Text style={styles.headerText}>Profile</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={guideDetailStyles.detailHeader}
+        >
+          <Feather name="arrow-left" size={20} color={colors.primary} />
+          <Text style={guideDetailStyles.detailHeaderLabel}>Profile</Text>
         </Pressable>
       </View>
 
@@ -265,50 +362,57 @@ export default function MyDocumentsScreen() {
           ) : (
             files.map((file, index) => (
               <View key={file.id ?? file.name}>
-                <Pressable
-                  style={styles.fileRow}
-                  onPress={() => handleOpenFile(file)}
-                >
-                  <View
-                    style={[
-                      styles.fileIconBox,
-                      file.name.startsWith('SENSITIVE_') &&
-                        styles.sensitiveIconBox,
-                    ]}
-                  >
-                    <Ionicons
-                      name={
-                        file.name.startsWith('SENSITIVE_')
-                          ? 'eye-off-outline'
-                          : file.metadata?.mimetype?.startsWith('image/')
-                            ? 'image-outline'
-                            : 'document-text-outline'
-                      }
-                      size={20}
-                      color={
-                        file.name.startsWith('SENSITIVE_')
-                          ? 'white'
-                          : colors.primary
-                      }
-                    />
-                  </View>
-                  <View style={styles.fileRowText}>
-                    <Text numberOfLines={1} style={styles.fileRowTitle}>
-                      {file.name.replace('SENSITIVE_', '')}
-                    </Text>
-                    <Text style={styles.fileRowDetails}>
-                      {file.metadata?.mimetype?.split('/')[1]?.toUpperCase() ??
-                        'FILE'}{' '}
-                      • {((file.metadata?.size ?? 0) / 1024).toFixed(0)} KB
-                    </Text>
-                  </View>
+                <View style={styles.fileRow}>
                   <Pressable
+                    style={styles.fileOpenButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Open document ${getDocumentDisplayName(file)}`}
+                    onPress={() => handleOpenFile(file)}
+                  >
+                    <View
+                      style={[
+                        styles.fileIconBox,
+                        isSensitiveDocument(file.name) &&
+                          styles.sensitiveIconBox,
+                      ]}
+                    >
+                      <Ionicons
+                        name={
+                          isSensitiveDocument(file.name)
+                            ? 'eye-off-outline'
+                            : file.metadata?.mimetype?.startsWith('image/')
+                              ? 'image-outline'
+                              : 'document-text-outline'
+                        }
+                        size={20}
+                        color={
+                          isSensitiveDocument(file.name)
+                            ? 'white'
+                            : colors.primary
+                        }
+                      />
+                    </View>
+                    <View style={styles.fileRowText}>
+                      <Text numberOfLines={1} style={styles.fileRowTitle}>
+                        {getDocumentDisplayName(file)}
+                      </Text>
+                      <Text style={styles.fileRowDetails}>
+                        {file.metadata?.mimetype
+                          ?.split('/')[1]
+                          ?.toUpperCase() ?? 'FILE'}{' '}
+                        • {((file.metadata?.size ?? 0) / 1024).toFixed(0)} KB
+                      </Text>
+                    </View>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Options for ${getDocumentDisplayName(file)}`}
                     onPress={() => openFileOptions(file)}
                     style={{ padding: 8 }}
                   >
                     <Feather name="more-horizontal" size={20} color="#666" />
                   </Pressable>
-                </Pressable>
+                </View>
                 {index < files.length - 1 && <View style={styles.divider} />}
               </View>
             ))
@@ -316,7 +420,13 @@ export default function MyDocumentsScreen() {
         </View>
       </ScrollView>
 
-      <Pressable style={styles.floatingUploadBtn} onPress={handleSelectFiles}>
+      <Pressable
+        style={styles.floatingUploadBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Upload files"
+        onPress={handleSelectFiles}
+        disabled={loading}
+      >
         <Feather name="upload" size={20} color="white" />
         <Text style={styles.uploadText}>Upload files</Text>
       </Pressable>
@@ -325,23 +435,33 @@ export default function MyDocumentsScreen() {
         visible={uploadModalVisible}
         animationType="slide"
         presentationStyle="pageSheet"
+        onRequestClose={() => {
+          if (!loading) closeUploadModal();
+        }}
       >
-        <View style={[styles.modalContainer, { paddingTop: 20 }]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={[
+            styles.modalContainer,
+            { paddingTop: Math.max(insets.top, 20) },
+          ]}
+        >
+          <View style={styles.modalSafeExitRow}>
+            <SafeExitButton onExit={handleSafeExit} />
+          </View>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               Save {selectedUploads.length} files
             </Text>
-            <Pressable
-              onPress={() => {
-                setUploadModalVisible(false);
-                setSelectedUploads([]);
-              }}
-            >
+            <Pressable onPress={closeUploadModal} disabled={loading}>
               <Text style={styles.cancelText}>Cancel</Text>
             </Pressable>
           </View>
 
-          <ScrollView style={styles.modalScroll}>
+          <ScrollView
+            style={styles.modalScroll}
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={styles.cardWrapper}>
               {selectedUploads.map((file, index) => (
                 <View key={index}>
@@ -362,8 +482,31 @@ export default function MyDocumentsScreen() {
                         • {((file.size ?? 0) / 1024).toFixed(0)} KB
                       </Text>
                     </View>
-                    <Feather name="edit-2" size={18} color={colors.textMuted} />
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Rename ${file.name}`}
+                      style={{ padding: 12 }}
+                      disabled={loading || editingUploadIndex !== null}
+                      onPress={() => setEditingUploadIndex(index)}
+                    >
+                      <Feather name="edit-2" size={18} color={colors.primary} />
+                    </Pressable>
                   </View>
+                  {editingUploadIndex === index && (
+                    <DocumentNameEditor
+                      name={file.name}
+                      onCancel={() => setEditingUploadIndex(null)}
+                      onSave={name => {
+                        if (!isActive()) return;
+                        setSelectedUploads(previous =>
+                          previous.map((asset, assetIndex) =>
+                            assetIndex === index ? { ...asset, name } : asset,
+                          ),
+                        );
+                        setEditingUploadIndex(null);
+                      }}
+                    />
+                  )}
                   {index < selectedUploads.length - 1 && (
                     <View style={styles.divider} />
                   )}
@@ -388,9 +531,15 @@ export default function MyDocumentsScreen() {
 
           <View style={styles.modalFooter}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Save selected files"
               style={[styles.saveButton, loading && { opacity: 0.7 }]}
               onPress={confirmAndUploadFiles}
-              disabled={loading}
+              disabled={
+                loading ||
+                editingUploadIndex !== null ||
+                selectedUploads.length === 0
+              }
             >
               {loading ? (
                 <ActivityIndicator color="white" />
@@ -401,7 +550,7 @@ export default function MyDocumentsScreen() {
               )}
             </Pressable>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <StatusBar style="dark" />
@@ -410,15 +559,18 @@ export default function MyDocumentsScreen() {
         fileUrl={currentViewUrl}
         mimeType={currentMimeType}
         fileName={currentFileName}
-        isSensitive={currentFileName.includes('SENSITIVE_')}
+        isSensitive={currentFile ? isSensitiveDocument(currentFile.name) : true}
 
-        onShare={() => currentFullPath && handleShareFile(currentFullPath)}
-
-        onClose={() => {
-          setViewerVisible(false);
-          setCurrentViewUrl(null);
-          setCurrentFullPath(null);
-        }}
+        onShare={handleShareFile}
+        onDelete={currentFile ? () => confirmDelete(currentFile) : undefined}
+        onRename={
+          currentFile && !currentFile.isShared
+            ? name => handleRenameFile(currentFile, name)
+            : undefined
+        }
+        isDeleting={isDeleting}
+        onExit={handleSafeExit}
+        onClose={closeViewer}
       />
     </View>
   );
@@ -446,20 +598,9 @@ const FolderRow = ({ icon, name, details }: FolderRowProps) => (
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
-    alignItems: 'center',
+    paddingTop: 8,
     zIndex: 10,
-  },
-  backButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  headerText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    fontFamily: 'Nunito Sans',
   },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 100 },
   title: {
@@ -499,6 +640,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   fileRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
+  fileOpenButton: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   fileIconBox: {
     width: 40,
     height: 40,
@@ -552,7 +699,7 @@ const styles = StyleSheet.create({
   },
   floatingUploadBtn: {
     position: 'absolute',
-    bottom: 109,
+    bottom: 24,
     right: 20,
     width: 145,
     height: 48,
@@ -576,6 +723,11 @@ const styles = StyleSheet.create({
   },
 
   modalContainer: { flex: 1, backgroundColor: colors.white },
+  modalSafeExitRow: {
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

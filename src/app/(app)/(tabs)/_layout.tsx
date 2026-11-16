@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
-import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Tabs } from 'expo-router';
+import { Tabs, useSegments } from 'expo-router';
 import { Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import SafeExitButton from '@/components/SafeExitButton';
 import colors from '@/styles/colors';
@@ -14,40 +14,55 @@ type TabBarProps = Parameters<
   NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 >[0];
 
-function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
+function FloatingTabBar({
+  state,
+  descriptors,
+  emitter,
+  navigateToTab,
+}: TabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View
       pointerEvents="box-none"
-      style={[bar.wrapper, { bottom: Math.max(insets.bottom, 16) }]}
+      style={[bar.wrapper, { paddingBottom: Math.max(insets.bottom, 16) }]}
     >
       <View style={bar.pill}>
         {state.routes.map((route, index) => {
+          // Custom tab bars must filter hidden routes themselves.
+          if (
+            !['support', 'journal', 'home', 'tools', 'profile'].includes(
+              route.name.replace(/\/index$/, ''),
+            )
+          )
+            return null;
           const { options } = descriptors[route.key];
           const focused = state.index === index;
           const color = focused ? colors.primary : colors.navInactive;
 
           const onPress = () => {
-            const event = navigation.emit({
+            const event = emitter.emit({
               type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
             });
             if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
+              navigateToTab(route.key);
             }
           };
 
           return (
             <Pressable
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={
                 options.tabBarAccessibilityLabel ?? options.title
               }
               onPress={onPress}
+              onLongPress={() =>
+                emitter.emit({ type: 'tabLongPress', target: route.key })
+              }
               style={bar.item}
             >
               <View style={[bar.bubble, focused && bar.bubbleActive]}>
@@ -63,13 +78,13 @@ function FloatingTabBar({ state, descriptors, navigation }: TabBarProps) {
 
 const bar = StyleSheet.create({
   wrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+    // Reserve dock space so Diary controls and long lists stay reachable.
+    paddingTop: 8,
     alignItems: 'center',
   },
   pill: {
     width: 300,
+    maxWidth: '90%',
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
@@ -105,11 +120,19 @@ const bar = StyleSheet.create({
 });
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const segments = useSegments();
+  const isGuideCompletion =
+    segments.includes('guides') &&
+    segments[segments.length - 1] === 'completed';
+
   return (
     <View style={styles.container}>
       <Tabs
-        tabBar={props => <FloatingTabBar {...props} />}
-        screenOptions={{ tabBarShowLabel: false }}
+        tabBar={props =>
+          isGuideCompletion ? null : <FloatingTabBar {...props} />
+        }
+        screenOptions={{ tabBarShowLabel: false, headerShown: false }}
       >
         <Tabs.Screen
           name="support"
@@ -117,7 +140,11 @@ export default function TabsLayout() {
             title: 'Support',
             headerShown: false,
             tabBarIcon: ({ color }) => (
-              <SimpleLineIcons name="earphones-alt" size={22} color={color} />
+              <SimpleLineIcons
+                name="earphones-alt"
+                size={22}
+                style={{ color }}
+              />
             ),
           }}
         />
@@ -148,18 +175,10 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="toolkit"
-          listeners={{
-            tabPress: e => {
-              e.preventDefault();
-              Alert.alert(
-                'Toolkit',
-                'Toolkit features are coming in a future sprint!',
-              );
-            },
-          }}
+          name="tools"
           options={{
             title: 'Toolkit',
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <Image
                 source={ToolkitIcon}
@@ -174,7 +193,7 @@ export default function TabsLayout() {
             title: 'Profile',
             headerShown: false,
             tabBarIcon: ({ color }) => (
-              <Ionicons name="person-outline" size={24} color={color} />
+              <Ionicons name="person-outline" size={24} style={{ color }} />
             ),
           }}
         />
@@ -182,7 +201,7 @@ export default function TabsLayout() {
       <SafeExitButton
         style={{
           position: 'absolute',
-          top: 76,
+          top: insets.top + 4,
           right: 20,
           zIndex: 999,
         }}

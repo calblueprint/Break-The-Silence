@@ -13,12 +13,12 @@ export const searchableItemsList: SearchResultItem[] = [
   {
     title: 'Resources',
     keywords: ['resources', 'help', 'services', 'legal', 'shelter', 'text'],
-    route: '/support/resources',
+    route: '/tools/resources',
   },
   {
     title: 'Guides',
     keywords: ['guides', 'toolkit', 'information', 'learn', 'support', 'text'],
-    route: '/support/guides',
+    route: '/tools/guides',
   },
   {
     title: 'Diary',
@@ -28,7 +28,7 @@ export const searchableItemsList: SearchResultItem[] = [
   {
     title: 'Documents',
     keywords: ['documents', 'files', 'upload', 'text'],
-    route: '/documents',
+    route: '/profile/documents',
   },
   {
     title: 'Profile',

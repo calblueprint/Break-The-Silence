@@ -4,11 +4,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '@/components/Button/Button';
 import {
+  callbackStyles as styles,
+  submitButtonTitleStyle,
+} from '@/styles/authStyles';
+import {
   PENDING_SIGNUP_EMAIL_KEY,
   resendSignupConfirmation,
 } from '../../../../api/supabase/auth';
 import supabase from '../../../../api/supabase/client';
-import { callbackStyles as styles, submitButtonTitleStyle } from '../styles';
 
 export default function AuthCallbackPage() {
   const params = useLocalSearchParams<{
