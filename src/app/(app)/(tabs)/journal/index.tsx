@@ -225,7 +225,7 @@ export default function Journal() {
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search through diary..."
-                placeholderTextColor={colors.textMuted}
+                placeholderTextColor={colors.slate500}
                 autoCorrect={false}
                 clearButtonMode="while-editing"
               />

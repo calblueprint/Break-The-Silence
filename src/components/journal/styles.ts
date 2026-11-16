@@ -98,11 +98,12 @@ export const journalListStyles = StyleSheet.create({
     aspectRatio: 1,
   },
   searchInput: {
-    ...typography.montserratBody,
-    fontSize: 16,
+    ...typography.p2,
     flex: 1,
     height: '100%',
-    color: colors.text,
+    // Android adds its own vertical padding, which pushes the text off center
+    paddingVertical: 0,
+    color: colors.black,
   },
   filterButtonContainer: {
     width: 44,
