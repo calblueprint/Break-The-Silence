@@ -22,6 +22,11 @@ function FloatingTabBar({
 }: TabBarProps) {
   const insets = useSafeAreaInsets();
 
+  // A screen can hide the dock with tabBarStyle: { display: 'none' }, like the
+  // Diary list does while selecting entries to delete
+  const { tabBarStyle } = descriptors[state.routes[state.index].key].options;
+  if (StyleSheet.flatten(tabBarStyle)?.display === 'none') return null;
+
   return (
     <View
       pointerEvents="box-none"

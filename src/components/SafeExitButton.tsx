@@ -1,8 +1,8 @@
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import colors from '@/styles/colors';
+import { montserratBold } from '@/styles/typography';
 
 interface SafeExitButtonProps {
   style?: StyleProp<ViewStyle>;
@@ -23,23 +23,31 @@ export default function SafeExitButton({ style, onExit }: SafeExitButtonProps) {
       accessibilityLabel="Safe exit"
       accessibilityRole="button"
     >
-      <Feather name="x" size={26} color={colors.white} />
+      <Text style={styles.buttonText}>SAFE EXIT</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    width: 44,
-    aspectRatio: 1,
-    borderRadius: 22,
-    backgroundColor: colors.safeExit,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.safeExit,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
+    gap: 6.714,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: colors.safeExit,
+    shadowColor: colors.safeExitShadow,
+    shadowOffset: { width: 0, height: 2.686 },
+    shadowOpacity: 0.16,
+    shadowRadius: 5.37,
     elevation: 6,
+  },
+  buttonText: {
+    ...montserratBold,
+    fontSize: 16,
+    lineHeight: 20,
+    color: colors.white,
   },
 });

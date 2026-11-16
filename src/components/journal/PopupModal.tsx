@@ -6,6 +6,8 @@ import { popupModalStyles as styles } from './styles';
 
 interface PopupModalProps {
   visible: boolean;
+  // Centered dialog, or a sheet that slides up from the bottom
+  variant?: 'dialog' | 'sheet';
   onRequestClose: () => void;
   children: ReactNode;
 }
@@ -14,6 +16,7 @@ interface PopupModalProps {
 // own copy in the same spot to keep it reachable at all times
 export default function PopupModal({
   visible,
+  variant = 'dialog',
   onRequestClose,
   children,
 }: PopupModalProps) {
@@ -24,10 +27,17 @@ export default function PopupModal({
       visible={visible}
       transparent
       statusBarTranslucent
-      animationType="fade"
+      animationType={variant === 'sheet' ? 'slide' : 'fade'}
       onRequestClose={onRequestClose}
     >
-      <View style={styles.overlayContainer}>{children}</View>
+      <View
+        style={[
+          styles.overlayContainer,
+          variant === 'sheet' && styles.overlaySheetContainer,
+        ]}
+      >
+        {children}
+      </View>
       <SafeExitButton
         style={[styles.safeExitButton, { top: insets.top + 4 }]}
       />

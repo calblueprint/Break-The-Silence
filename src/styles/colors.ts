@@ -5,10 +5,17 @@ const colors = {
   primary: '#5B2A8C',
   primaryDark: '#4A2170',
   primaryLight: '#F1EAF7',
+  actionPrimary: '#632082',
+  actionDanger: '#DC2626',
   tabBarActive: '#3524C4',
   warningLight: '#FFF4D6',
   successLight: '#E8F5E9',
   neutralLight: '#F1F5F9',
+  surfaceCard: '#F8FAFC',
+  surfaceAccentSubtle: '#F9F3FC',
+  surfaceInverse: '#20092A',
+  // Text buttons like Undo on the dark toast
+  accentOnInverse: '#D9B8E8',
   text: '#1A1A1A',
   textMuted: '#6B6B76',
   inputBackground: '#F1F5F9',
@@ -20,10 +27,14 @@ const colors = {
   overlay: 'rgba(0, 0, 0, 0.25)',
   toastBackground: '#475569',
   safeExit: '#3E24C4',
+  safeExitShadow: '#20092A',
   navInactive: '#94A3B8',
   // Named after the Figma color variables (Mid-Fi designs)
   slate100: '#F1F5F9',
+  slate200: '#E2E8F0',
+  slate300: '#CBD5E1',
   slate400: '#94A3B8',
+  slate500: '#64748B',
   slate600: '#475569',
 };
 

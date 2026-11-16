@@ -17,6 +17,19 @@ import {
 } from '~/api/supabase/queries/diary';
 
 const TOAST_DURATION_MS = 3000;
+// Longer when there's a button like Undo, so there's time to tap it
+const TOAST_WITH_ACTION_DURATION_MS = 5000;
+
+export interface ToastOptions {
+  icon?: 'check' | 'trash';
+  // Text button on the right, like "Undo"
+  actionText?: string;
+  onAction?: () => void;
+}
+
+interface ToastState extends ToastOptions {
+  message: string;
+}
 
 interface JournalContextValue {
   // Sorted newest first
@@ -32,9 +45,12 @@ interface JournalContextValue {
     updates: Partial<NewJournalEntry>,
   ) => Promise<JournalEntry>;
   deleteEntry: (id: string) => Promise<void>;
+  // Re-creates deleted entries with their original dates (they get new ids).
+  // Throws if any fail; the ones that worked stay restored.
+  restoreEntries: (deleted: JournalEntry[]) => Promise<void>;
   getEntry: (id: string) => JournalEntry | undefined;
   // Shows a short message that stays visible across journal screens
-  showToast: (message: string) => void;
+  showToast: (message: string, options?: ToastOptions) => void;
 }
 
 interface JournalProviderProps {
@@ -49,13 +65,22 @@ export function JournalProvider({ children }: JournalProviderProps) {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
 
   useEffect(() => {
-    if (!toastMessage) return;
-    const timer = setTimeout(() => setToastMessage(null), TOAST_DURATION_MS);
+    if (!toast) return;
+    const timer = setTimeout(
+      () => setToast(null),
+      toast.actionText ? TOAST_WITH_ACTION_DURATION_MS : TOAST_DURATION_MS,
+    );
     return () => clearTimeout(timer);
-  }, [toastMessage]);
+  }, [toast]);
+
+  const showToast = useCallback(
+    (message: string, options?: ToastOptions) =>
+      setToast({ message, ...options }),
+    [],
+  );
 
   const loadEntries = useCallback(async () => {
     try {
@@ -86,8 +111,9 @@ export function JournalProvider({ children }: JournalProviderProps) {
   const updateEntry = useCallback(
     async (id: string, updates: Partial<NewJournalEntry>) => {
       const updated = await updateDiaryEntry(id, updates);
+      // Re-sorts in case the entry's date changed
       setEntries(prev =>
-        prev.map(entry => (entry.id === id ? updated : entry)),
+        sortNewestFirst(prev.map(entry => (entry.id === id ? updated : entry))),
       );
       return updated;
     },
@@ -97,6 +123,25 @@ export function JournalProvider({ children }: JournalProviderProps) {
   const deleteEntry = useCallback(async (id: string) => {
     await deleteDiaryEntry(id);
     setEntries(prev => prev.filter(entry => entry.id !== id));
+  }, []);
+
+  const restoreEntries = useCallback(async (deleted: JournalEntry[]) => {
+    const results = await Promise.allSettled(
+      deleted.map(entry =>
+        createDiaryEntry({
+          title: entry.title,
+          content: entry.content,
+          createdAt: entry.createdAt,
+        }),
+      ),
+    );
+    const restored = results.flatMap(result =>
+      result.status === 'fulfilled' ? [result.value] : [],
+    );
+    setEntries(prev => sortNewestFirst([...restored, ...prev]));
+    if (restored.length < deleted.length) {
+      throw new Error('Could not restore some entries.');
+    }
   }, []);
 
   const getEntry = useCallback(
@@ -113,8 +158,9 @@ export function JournalProvider({ children }: JournalProviderProps) {
       addEntry,
       updateEntry,
       deleteEntry,
+      restoreEntries,
       getEntry,
-      showToast: setToastMessage,
+      showToast,
     }),
     [
       entries,
@@ -124,14 +170,30 @@ export function JournalProvider({ children }: JournalProviderProps) {
       addEntry,
       updateEntry,
       deleteEntry,
+      restoreEntries,
       getEntry,
+      showToast,
     ],
   );
 
   return (
     <JournalContext.Provider value={value}>
       {children}
-      {toastMessage ? <Toast message={toastMessage} /> : null}
+      {toast ? (
+        <Toast
+          {...toast}
+          // With no entries left there's no floating button to sit above
+          raised={entries.length > 0}
+          onAction={
+            toast.onAction
+              ? () => {
+                  setToast(null);
+                  toast.onAction?.();
+                }
+              : undefined
+          }
+        />
+      ) : null}
     </JournalContext.Provider>
   );
 }

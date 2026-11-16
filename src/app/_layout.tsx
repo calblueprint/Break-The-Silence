@@ -3,6 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Montserrat_400Regular } from '@expo-google-fonts/montserrat/400Regular';
 import { Montserrat_400Regular_Italic } from '@expo-google-fonts/montserrat/400Regular_Italic';
+import { Montserrat_600SemiBold } from '@expo-google-fonts/montserrat/600SemiBold';
 import { Montserrat_700Bold } from '@expo-google-fonts/montserrat/700Bold';
 import { useFonts } from '@expo-google-fonts/montserrat/useFonts';
 import { NunitoSans_400Regular } from '@expo-google-fonts/nunito-sans/400Regular';
@@ -16,6 +17,7 @@ export default function RootLayout() {
   const [initialized, setInitialized] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
     Montserrat: Montserrat_400Regular,
+    'Montserrat-SemiBold': Montserrat_600SemiBold,
     'Montserrat-Bold': Montserrat_700Bold,
     'Montserrat-Italic': Montserrat_400Regular_Italic,
     'Nunito Sans': NunitoSans_400Regular,

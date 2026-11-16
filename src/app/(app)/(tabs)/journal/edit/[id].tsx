@@ -4,6 +4,7 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import EntryForm from '@/components/journal/EntryForm';
 import { entryDetailStyles as styles } from '@/components/journal/styles';
 import { useJournal } from '@/context/JournalContext';
+import { getMockPhotoCount } from '@/data/mockJournalPhotos';
 import useIsMountedRef from '@/hooks/useIsMountedRef';
 import colors from '@/styles/colors';
 
@@ -41,6 +42,7 @@ export default function EditEntry() {
     <EntryForm
       date={new Date(entry.createdAt)}
       initialValues={{ title: entry.title, content: entry.content }}
+      initialPhotoCount={getMockPhotoCount(entry.id)}
       saveConfirm={{
         title: 'Edit this entry?',
         message: 'Your changes will be saved immediately.',

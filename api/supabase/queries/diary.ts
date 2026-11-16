@@ -25,6 +25,7 @@ function toDiaryColumns(entry: Partial<NewJournalEntry>) {
   return {
     ...(entry.title !== undefined && { title: entry.title.trim() || null }),
     ...(entry.content !== undefined && { description: entry.content }),
+    ...(entry.createdAt !== undefined && { created_at: entry.createdAt }),
   };
 }
 

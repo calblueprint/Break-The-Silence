@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const fontFamilies = {
   montserrat: 'Montserrat',
+  montserratSemiBold: 'Montserrat-SemiBold',
   montserratBold: 'Montserrat-Bold',
   montserratItalic: 'Montserrat-Italic',
   nunitoSans: 'Nunito Sans',

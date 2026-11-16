@@ -64,3 +64,23 @@ export function formatEntryDate(date: Date) {
 export function formatMonthYear(date: Date) {
   return `${FULL_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
+
+// "Nov 5, 2026"
+export function formatMediumDate(date: Date) {
+  return `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+export function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
+// "2026-11-05" in local time, for looking up which days have entries
+export function toDayKey(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}

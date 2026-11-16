@@ -10,6 +10,8 @@ interface ConfirmModalProps {
   confirmText: string;
   // Disables both buttons while the confirmed action is running
   busy?: boolean;
+  // Red confirm button for actions that can't be undone, like deleting
+  destructive?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -21,6 +23,7 @@ export default function ConfirmModal({
   message,
   confirmText,
   busy = false,
+  destructive = false,
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
@@ -39,8 +42,11 @@ export default function ConfirmModal({
           text={confirmText}
           onPress={onConfirm}
           containerStyle={styles.buttonContainer}
-          buttonStyle={styles.button}
-          titleStyle={styles.buttonText}
+          buttonStyle={[styles.button, destructive && styles.destructiveButton]}
+          titleStyle={[
+            styles.buttonText,
+            destructive && styles.destructiveButtonText,
+          ]}
         />
         <Button
           disabled={busy}
