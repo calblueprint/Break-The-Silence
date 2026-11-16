@@ -49,8 +49,8 @@ const titleBase = {
 } as const;
 
 const backButtonBase = {
-  width: 40,
-  height: 32,
+  width: 44,
+  height: 44,
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: 12,
@@ -254,6 +254,11 @@ export const updatePasswordStyles = StyleSheet.create({
 });
 
 export const loginStyles = StyleSheet.create({
+  backButton: {
+    ...backButtonBase,
+    position: 'absolute',
+    left: 24,
+  },
   container: {
     ...centeredScreenBase,
     backgroundColor: colors.white,

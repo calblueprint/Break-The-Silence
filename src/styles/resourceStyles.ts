@@ -78,15 +78,6 @@ export default StyleSheet.create({
     color: colors.textMuted,
   },
   categoryCount: { ...typography.p3, color: colors.primary },
-  backButton: {
-    minHeight: 44,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    marginLeft: -6,
-    marginTop: 4,
-  },
   categoryHeader: { paddingTop: 12, paddingBottom: 20, gap: 10 },
   categoryTitle: { ...typography.h3, lineHeight: 32, color: colors.text },
   resourceCard: {

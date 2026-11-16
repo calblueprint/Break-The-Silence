@@ -31,7 +31,7 @@ const QUICK_LINKS: QuickLinkItem[] = [
   { label: 'Hotline', icon: 'smartphone', href: '/support/support-line' },
   // TODO: add the href once the Safety Plan page exists
   { label: 'Safety Plan', icon: 'shield' },
-  { label: 'My Documents', icon: 'file', href: '/documents' },
+  { label: 'My Documents', icon: 'file', href: '/profile/documents' },
   { label: 'Diary', icon: 'book', href: '/journal' },
 ];
 

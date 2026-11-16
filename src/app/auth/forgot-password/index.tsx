@@ -3,14 +3,14 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
-import BackArrowIcon from '~/assets/Vector.svg';
-import { sendPasswordReset } from '../../../../api/supabase/auth';
 import {
   shared,
   forgotPasswordStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
-} from '../styles';
+} from '@/styles/authStyles';
+import BackArrowIcon from '~/assets/Vector.svg';
+import { sendPasswordReset } from '../../../../api/supabase/auth';
 
 type Step = 'form' | 'confirm' | 'sent';
 
@@ -26,8 +26,10 @@ export default function ForgotPasswordPage() {
   function handleBack() {
     if (step === 'confirm') {
       setStep('form');
-    } else {
+    } else if (router.canGoBack()) {
       router.back();
+    } else {
+      router.replace('/auth/login');
     }
   }
 
@@ -56,7 +58,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={shared.backButton} onPress={handleBack}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back"
+        style={shared.backButton}
+        onPress={handleBack}
+      >
         <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 

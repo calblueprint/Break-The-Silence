@@ -28,7 +28,7 @@ export const searchableItemsList: SearchResultItem[] = [
   {
     title: 'Documents',
     keywords: ['documents', 'files', 'upload', 'text'],
-    route: '/documents',
+    route: '/profile/documents',
   },
   {
     title: 'Profile',

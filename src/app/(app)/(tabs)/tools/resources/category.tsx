@@ -9,6 +9,7 @@ import ResourceSearchBar from '@/components/Resources/ResourceSearchBar';
 import ResourceStatus from '@/components/Resources/ResourceStatus';
 import { useResources } from '@/context/ResourcesContext';
 import colors from '@/styles/colors';
+import guideDetailStyles from '@/styles/guideDetailStyles';
 import styles from '@/styles/resourceStyles';
 import {
   filterCategoryResources,
@@ -40,7 +41,7 @@ export default function ResourceCategoryScreen() {
         data={visibleResources}
         keyExtractor={item => item.id}
         style={styles.catalog}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={guideDetailStyles.detailContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         refreshControl={
@@ -57,10 +58,10 @@ export default function ResourceCategoryScreen() {
               accessibilityRole="button"
               accessibilityLabel="Back to resource categories"
               onPress={goBack}
-              style={styles.backButton}
+              style={guideDetailStyles.detailHeader}
             >
-              <Feather name="chevron-left" size={22} color={colors.primary} />
-              <Text style={styles.textButtonLabel}>Resources</Text>
+              <Feather name="arrow-left" size={20} color={colors.primary} />
+              <Text style={guideDetailStyles.detailHeaderLabel}>Resources</Text>
             </Pressable>
             <View style={styles.categoryHeader}>
               <View

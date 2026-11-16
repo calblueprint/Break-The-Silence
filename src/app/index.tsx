@@ -2,7 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Logo from '@/components/Logo';
-import { authLandingStyles as styles } from './auth/styles';
+import { authLandingStyles as styles } from '@/styles/authStyles';
 
 export default function App() {
   const router = useRouter();

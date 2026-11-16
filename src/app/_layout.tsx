@@ -52,7 +52,8 @@ export default function RootLayout() {
     const onUpdatePassword =
       inAuthGroup && (segments as string[])[1] === 'update-password';
 
-    if (!session && !inAuthGroup) {
+    // The welcome screen stays public so auth Back and Safe Exit can reach it.
+    if (!session && segments[0] === '(app)') {
       router.replace('/auth/login');
     } else if (session && inAuthGroup && !onUpdatePassword) {
       router.replace('/(app)/(tabs)/home');
@@ -69,6 +70,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack>
     </SafeAreaProvider>
   );

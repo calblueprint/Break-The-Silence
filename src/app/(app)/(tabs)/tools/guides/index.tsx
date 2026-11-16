@@ -3,6 +3,7 @@ import type {
   GuideCatalogEntry,
   GuideCategory,
 } from '@/data/guideCatalogTypes';
+import type { ScrollViewInstance } from 'react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,7 +35,7 @@ export default function GuidesScreen() {
   const { category: categoryParam } = useLocalSearchParams<{
     category?: string;
   }>();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ScrollViewInstance>(null);
   const [selectedCategory, setSelectedCategory] = useState<GuideFilter>('All');
   const [searchText, setSearchText] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');

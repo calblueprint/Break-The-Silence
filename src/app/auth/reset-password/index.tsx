@@ -3,16 +3,16 @@ import { Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Button from '@/components/Button/Button';
-import EyeIconOpen from '~/assets/AiOutlineEye.svg';
-import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
-import BackArrowIcon from '~/assets/Vector.svg';
-import { updatePassword } from '../../../../api/supabase/auth';
 import {
   shared,
   resetPasswordStyles as styles,
   submitButtonStyle,
   submitButtonTitleStyle,
-} from '../styles';
+} from '@/styles/authStyles';
+import EyeIconOpen from '~/assets/AiOutlineEye.svg';
+import EyeIcon from '~/assets/AiOutlineEyeInvisible.svg';
+import BackArrowIcon from '~/assets/Vector.svg';
+import { updatePassword } from '../../../../api/supabase/auth';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -52,7 +52,15 @@ export default function ResetPasswordPage() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={shared.backButton} onPress={() => router.back()}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back"
+        style={shared.backButton}
+        onPress={() => {
+          if (router.canGoBack()) router.back();
+          else router.replace('/auth/login');
+        }}
+      >
         <BackArrowIcon style={shared.backArrowIcon} />
       </Pressable>
 
