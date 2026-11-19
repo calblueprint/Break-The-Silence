@@ -1,8 +1,7 @@
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import colors from '@/styles/colors';
-import { montserratBold } from '@/styles/typography';
+import styles from '@/styles/safeExitButtonStyles';
 
 interface SafeExitButtonProps {
   style?: StyleProp<ViewStyle>;
@@ -27,27 +26,3 @@ export default function SafeExitButton({ style, onExit }: SafeExitButtonProps) {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6.714,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 999,
-    backgroundColor: colors.safeExit,
-    shadowColor: colors.safeExitShadow,
-    shadowOffset: { width: 0, height: 2.686 },
-    shadowOpacity: 0.16,
-    shadowRadius: 5.37,
-    elevation: 6,
-  },
-  buttonText: {
-    ...montserratBold,
-    fontSize: 16,
-    lineHeight: 20,
-    color: colors.white,
-  },
-});
