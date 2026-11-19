@@ -1,11 +1,26 @@
 import { StyleSheet } from 'react-native';
+import { Montserrat_400Regular } from '@expo-google-fonts/montserrat/400Regular';
+import { Montserrat_400Regular_Italic } from '@expo-google-fonts/montserrat/400Regular_Italic';
+import { Montserrat_600SemiBold } from '@expo-google-fonts/montserrat/600SemiBold';
+import { Montserrat_700Bold } from '@expo-google-fonts/montserrat/700Bold';
+import { NunitoSans_400Regular } from '@expo-google-fonts/nunito-sans/400Regular';
 
 export const fontFamilies = {
   montserrat: 'Montserrat',
+  montserratSemiBold: 'Montserrat-SemiBold',
   montserratBold: 'Montserrat-Bold',
   montserratItalic: 'Montserrat-Italic',
   nunitoSans: 'Nunito Sans',
 } as const;
+
+// Font files to load at startup, keyed by the family names above
+export const fontAssets = {
+  [fontFamilies.montserrat]: Montserrat_400Regular,
+  [fontFamilies.montserratSemiBold]: Montserrat_600SemiBold,
+  [fontFamilies.montserratBold]: Montserrat_700Bold,
+  [fontFamilies.montserratItalic]: Montserrat_400Regular_Italic,
+  [fontFamilies.nunitoSans]: NunitoSans_400Regular,
+};
 
 const montserratRegular = {
   fontFamily: fontFamilies.montserrat,

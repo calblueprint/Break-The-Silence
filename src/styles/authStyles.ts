@@ -353,8 +353,16 @@ export const verifyCodeStyles = StyleSheet.create({
 });
 
 export const signupStyles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  // Scroll content, so it grows to fill the screen instead of flex: 1, which
+  // would stop it from scrolling past the keyboard
   container: {
     ...topAlignedAuthScreenBase,
+    flex: undefined,
+    flexGrow: 1,
     paddingHorizontal: 24,
     paddingBottom: 48,
   },

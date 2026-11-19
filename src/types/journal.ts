@@ -7,4 +7,7 @@ export interface JournalEntry {
   createdAt: string;
 }
 
-export type NewJournalEntry = Pick<JournalEntry, 'title' | 'content'>;
+export type NewJournalEntry = Pick<JournalEntry, 'title' | 'content'> & {
+  // Set when the user picks a different date; otherwise the database uses now
+  createdAt?: string;
+};

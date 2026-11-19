@@ -5,7 +5,7 @@ import { useJournal } from '@/context/JournalContext';
 
 export default function NewEntry() {
   const router = useRouter();
-  const { addEntry } = useJournal();
+  const { addEntry, showToast } = useJournal();
   const [now] = useState(() => new Date());
 
   const leave = () => {
@@ -31,6 +31,7 @@ export default function NewEntry() {
       }}
       onSave={async values => {
         await addEntry(values);
+        showToast('Entry saved');
       }}
       onLeave={leave}
     />

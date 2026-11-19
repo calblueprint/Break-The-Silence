@@ -1,7 +1,8 @@
 import type { JournalEntry } from '@/types/journal';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   SectionList,
@@ -9,19 +10,25 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import { useNavigation, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import Button from '@/components/Button/Button';
+import CalendarSheet from '@/components/journal/CalendarSheet';
+import ConfirmModal from '@/components/journal/ConfirmModal';
 import EntryCard from '@/components/journal/EntryCard';
-import FilterModal, {
-  SortOrder,
-  YearGroup,
-} from '@/components/journal/FilterModal';
 import { journalListStyles as styles } from '@/components/journal/styles';
 import { useJournal } from '@/context/JournalContext';
 import colors from '@/styles/colors';
-import { formatMonthYear } from '@/utils/journalDates';
+import {
+  formatMediumDate,
+  formatMonthYear,
+  isSameDay,
+} from '@/utils/journalDates';
+import CalendarIcon from '~/assets/calendar.svg';
 import FilterIcon from '~/assets/filter.png';
 import SearchIcon from '~/assets/SearchIcon.png';
 
@@ -45,76 +52,124 @@ function groupByMonth(entries: JournalEntry[]): MonthSection[] {
   return sections;
 }
 
-// Entries are sorted newest first, so years and months come out newest first
-function groupByYear(entries: JournalEntry[]): YearGroup[] {
-  const groups: YearGroup[] = [];
-  for (const entry of entries) {
-    const date = new Date(entry.createdAt);
-    const year = String(date.getFullYear());
-    const month = formatMonthYear(date);
-    const last = groups[groups.length - 1];
-    if (!last || last.year !== year) {
-      groups.push({ year, months: [month] });
-    } else if (last.months[last.months.length - 1] !== month) {
-      last.months.push(month);
-    }
-  }
-  return groups;
-}
-
 export default function Journal() {
   const router = useRouter();
-  const { entries, loading, error, refresh } = useJournal();
+  const {
+    entries,
+    loading,
+    error,
+    refresh,
+    deleteEntry,
+    restoreEntries,
+    showToast,
+  } = useJournal();
   const [search, setSearch] = useState('');
-  // A year like "2026" or a month like "October 2026"; null shows all entries
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
+  // Shows only entries from this day; null shows all entries
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
   const [filterVisible, setFilterVisible] = useState(false);
-
-  // Only years and months that have entries
-  const yearGroups = useMemo(() => groupByYear(entries), [entries]);
-
-  // Falls back to all entries if the selected period's last entry was deleted
-  const activePeriod =
-    selectedPeriod &&
-    yearGroups.some(
-      group =>
-        group.year === selectedPeriod || group.months.includes(selectedPeriod),
-    )
-      ? selectedPeriod
-      : null;
+  // Select mode: tapping entries checks them instead of opening them
+  const [selecting, setSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const sections = useMemo(() => {
     const query = search.trim().toLowerCase();
-    const filtered = entries.filter(entry => {
-      const date = new Date(entry.createdAt);
-      return (
-        (!activePeriod ||
-          String(date.getFullYear()) === activePeriod ||
-          formatMonthYear(date) === activePeriod) &&
+    const filtered = entries.filter(
+      entry =>
+        (!filterDate || isSameDay(new Date(entry.createdAt), filterDate)) &&
         (entry.title.toLowerCase().includes(query) ||
-          entry.content.toLowerCase().includes(query))
-      );
-    });
-    // Entries from context are newest first
-    return groupByMonth(
-      sortOrder === 'oldest' ? [...filtered].reverse() : filtered,
+          entry.content.toLowerCase().includes(query)),
     );
-  }, [entries, search, activePeriod, sortOrder]);
+    return groupByMonth(filtered);
+  }, [entries, search, filterDate]);
 
   const goToNewEntry = () => router.push('/journal/new_entry');
+
+  const toggleSelecting = () => {
+    setSelecting(prev => !prev);
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelected = (id: string) =>
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
+    // Kept so Undo can re-create them
+    const toDelete = entries.filter(entry => selectedIds.has(entry.id));
+    const results = await Promise.allSettled(
+      toDelete.map(entry => deleteEntry(entry.id)),
+    );
+    const deleted = toDelete.filter(
+      (_, i) => results[i].status === 'fulfilled',
+    );
+    const failedIds = toDelete
+      .filter((_, i) => results[i].status === 'rejected')
+      .map(entry => entry.id);
+    setDeleting(false);
+    setConfirmDeleteVisible(false);
+    if (deleted.length > 0) {
+      showToast(
+        deleted.length === 1
+          ? 'Entry deleted'
+          : `${deleted.length} entries deleted`,
+        {
+          icon: 'trash',
+          actionText: 'Undo',
+          onAction: () => {
+            restoreEntries(deleted).catch(() =>
+              Alert.alert(
+                'Could not restore some entries',
+                'Please check your connection and try again.',
+              ),
+            );
+          },
+        },
+      );
+    }
+    if (failedIds.length > 0) {
+      // Keeps the ones that failed checked so the user can try again
+      setSelectedIds(new Set(failedIds));
+      Alert.alert(
+        'Could not delete some entries',
+        'Please check your connection and try again.',
+      );
+    } else {
+      setSelecting(false);
+      setSelectedIds(new Set());
+    }
+  };
+
+  const selectedCount = selectedIds.size;
+  const deleteLabel =
+    selectedCount === 1 ? 'Delete 1 entry' : `Delete ${selectedCount} entries`;
+
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+
+  // The delete bar takes the tab dock's place while selecting
+  useEffect(() => {
+    navigation.getParent()?.setOptions({
+      tabBarStyle: selecting ? { display: 'none' } : undefined,
+    });
+  }, [navigation, selecting]);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.headerContainer}>
-        <Text style={styles.titleText}>Journal</Text>
-        <Pressable
-          onPress={goToNewEntry}
-          hitSlop={12}
-          accessibilityLabel="New journal entry"
-        >
-          <Feather name="plus" size={30} color={colors.primary} />
-        </Pressable>
+        <View>
+          <Text style={styles.titleText}>Diary</Text>
+          <Text style={styles.subtitleText}>Stored privately in this app</Text>
+        </View>
       </View>
 
       {entries.length === 0 && loading ? (
@@ -136,19 +191,29 @@ export default function Journal() {
           />
         </View>
       ) : entries.length === 0 ? (
-        <View style={styles.emptyStateContainer}>
-          <Feather name="book-open" size={48} color={colors.textMuted} />
-          <Text style={styles.emptyTitleText}>No entries yet</Text>
-          <Text style={styles.emptyMessageText}>
-            This is your private space to write about how you are feeling or
-            what happened today.
+        <View style={styles.welcomeContainer}>
+          <View style={styles.welcomeIconCircle}>
+            <Feather name="book" size={40} color={colors.actionPrimary} />
+          </View>
+          <Text style={styles.welcomeTitleText}>Your private diary</Text>
+          <Text style={styles.welcomeMessageText}>
+            Write about your day, life, feelings, or anything that happened.
+            Only you can see what you&apos;ve written.
           </Text>
-          <Button
-            disabled={false}
-            text="Write your first entry"
+          <Pressable
             onPress={goToNewEntry}
-            containerStyle={styles.emptyButtonContainer}
-          />
+            style={({ pressed }) => [
+              styles.welcomeButtonContainer,
+              pressed && styles.newEntryButtonPressedContainer,
+            ]}
+            accessibilityRole="button"
+          >
+            <Text style={styles.welcomeButtonText}>Write your first entry</Text>
+          </Pressable>
+          <Text style={styles.welcomeLabelText}>A PLACE TO BEGIN</Text>
+          <Text style={styles.welcomePromptText}>
+            What&apos;s on your mind today?
+          </Text>
         </View>
       ) : (
         <>
@@ -159,8 +224,8 @@ export default function Journal() {
                 style={styles.searchInput}
                 value={search}
                 onChangeText={setSearch}
-                placeholder="Search through journal..."
-                placeholderTextColor={colors.textMuted}
+                placeholder="Search through diary..."
+                placeholderTextColor={colors.slate500}
                 autoCorrect={false}
                 clearButtonMode="while-editing"
               />
@@ -170,23 +235,44 @@ export default function Journal() {
               hitSlop={8}
               style={[
                 styles.filterButtonContainer,
-                (activePeriod || sortOrder === 'oldest') &&
-                  styles.filterButtonActiveContainer,
+                filterDate && styles.filterButtonActiveContainer,
               ]}
-              accessibilityLabel="Filter and sort entries"
+              accessibilityLabel={
+                filterDate
+                  ? `Filtering by ${formatMediumDate(filterDate)}. Change filter`
+                  : 'Filter by date'
+              }
             >
               <Image source={FilterIcon} style={styles.filterIcon} />
             </Pressable>
-          </View>
-          {activePeriod ? (
             <Pressable
-              onPress={() => setSelectedPeriod(null)}
+              onPress={toggleSelecting}
+              hitSlop={8}
+              style={styles.selectButtonContainer}
+              accessibilityRole="button"
+              accessibilityLabel={
+                selecting
+                  ? 'Stop selecting entries'
+                  : 'Select entries to delete'
+              }
+            >
+              <Text style={styles.selectButtonText}>
+                {selecting ? 'Cancel' : 'Select'}
+              </Text>
+            </Pressable>
+          </View>
+          {filterDate ? (
+            <Pressable
+              onPress={() => setFilterDate(null)}
               hitSlop={8}
               style={styles.activeFilterChipContainer}
-              accessibilityLabel={`Clear ${activePeriod} filter and show all entries`}
+              accessibilityLabel={`Clear ${formatMediumDate(filterDate)} filter and show all entries`}
             >
-              <Text style={styles.activeFilterChipText}>{activePeriod}</Text>
-              <Feather name="x" size={14} color={colors.primary} />
+              <CalendarIcon width={16} height={16} />
+              <Text style={styles.activeFilterChipText}>
+                {formatMediumDate(filterDate)}
+              </Text>
+              <Feather name="x" size={14} color={colors.actionPrimary} />
             </Pressable>
           ) : null}
           <SectionList
@@ -198,36 +284,135 @@ export default function Journal() {
             refreshing={loading}
             onRefresh={refresh}
             renderSectionHeader={({ section }) => (
-              <Text style={styles.sectionHeaderText}>
-                {section.title.toUpperCase()}
-              </Text>
+              <Text style={styles.sectionHeaderText}>{section.title}</Text>
             )}
-            renderItem={({ item }) => (
+            renderItem={({ item, index, section }) => (
               <EntryCard
                 entry={item}
+                isFirst={index === 0}
+                isLast={index === section.data.length - 1}
+                selecting={selecting}
+                selected={selectedIds.has(item.id)}
                 onPress={() =>
-                  router.push({
-                    pathname: '/journal/[id]',
-                    params: { id: item.id },
-                  })
+                  selecting
+                    ? toggleSelected(item.id)
+                    : router.push({
+                        pathname: '/journal/[id]',
+                        params: { id: item.id },
+                      })
                 }
               />
             )}
             ListEmptyComponent={
-              <Text style={styles.noResultsText}>
-                No entries match &quot;{search.trim()}&quot;
-                {activePeriod ? ` in ${activePeriod}` : ''}
-              </Text>
+              filterDate && !search.trim() ? (
+                <View style={styles.noEntriesCardContainer}>
+                  <Text style={styles.noEntriesTitleText}>
+                    No entries on this date
+                  </Text>
+                  <Text style={styles.noEntriesMessageText}>
+                    You didn&apos;t write anything on{' '}
+                    {formatMediumDate(filterDate)}.
+                  </Text>
+                  <Pressable onPress={() => setFilterDate(null)} hitSlop={8}>
+                    <Text style={styles.noEntriesLinkText}>Clear filter</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <Text style={styles.noResultsText}>
+                  No entries match &quot;{search.trim()}&quot;
+                  {filterDate ? ` on ${formatMediumDate(filterDate)}` : ''}
+                </Text>
+              )
             }
           />
-          <FilterModal
+          <CalendarSheet
             visible={filterVisible}
-            yearGroups={yearGroups}
-            selectedPeriod={activePeriod}
-            sortOrder={sortOrder}
-            onSelectPeriod={setSelectedPeriod}
-            onSelectSortOrder={setSortOrder}
-            onClose={() => setFilterVisible(false)}
+            title="Filter by date"
+            selectedDate={filterDate}
+            getConfirmText={day => `Show ${formatMediumDate(day)}`}
+            onConfirm={day => {
+              setFilterDate(day);
+              setFilterVisible(false);
+            }}
+            onCancel={() => setFilterVisible(false)}
+            onClear={
+              filterDate
+                ? () => {
+                    setFilterDate(null);
+                    setFilterVisible(false);
+                  }
+                : undefined
+            }
+          />
+          {selecting ? (
+            <View
+              style={[
+                styles.deleteBarContainer,
+                { paddingBottom: Math.max(insets.bottom, 12) },
+              ]}
+            >
+              <Pressable
+                onPress={() => setConfirmDeleteVisible(true)}
+                disabled={selectedCount === 0}
+                style={({ pressed }) => [
+                  styles.deleteButtonContainer,
+                  selectedCount === 0 && styles.deleteButtonDisabledContainer,
+                  pressed && styles.newEntryButtonPressedContainer,
+                ]}
+                accessibilityRole="button"
+              >
+                <Feather
+                  name="trash-2"
+                  size={20}
+                  color={selectedCount === 0 ? colors.slate500 : colors.white}
+                />
+                <Text
+                  style={[
+                    styles.deleteButtonText,
+                    selectedCount === 0 && styles.deleteButtonDisabledText,
+                  ]}
+                >
+                  {selectedCount === 0 ? 'Delete' : deleteLabel}
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={goToNewEntry}
+              style={({ pressed }) => [
+                styles.newEntryButtonContainer,
+                pressed && styles.newEntryButtonPressedContainer,
+              ]}
+              accessibilityLabel="New journal entry"
+              accessibilityRole="button"
+            >
+              <Feather name="edit-2" size={20} color={colors.white} />
+              <Text style={styles.newEntryButtonText}>New entry</Text>
+            </Pressable>
+          )}
+          <ConfirmModal
+            visible={confirmDeleteVisible}
+            title={
+              selectedCount === 1
+                ? 'Delete this entry?'
+                : `Delete ${selectedCount} entries?`
+            }
+            message={
+              selectedCount === 1
+                ? "This entry and its photos will be deleted for good. You can't get it back."
+                : "These entries and their photos will be deleted for good. You can't get them back."
+            }
+            confirmText={
+              deleting
+                ? 'Deleting...'
+                : selectedCount === 1
+                  ? 'Delete entry'
+                  : deleteLabel
+            }
+            busy={deleting}
+            destructive
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setConfirmDeleteVisible(false)}
           />
         </>
       )}

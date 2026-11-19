@@ -2,6 +2,7 @@ import type { NewJournalEntry } from '@/types/journal';
 import { useCallback, useRef, useState } from 'react';
 import {
   Alert,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,13 +13,22 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import CalendarSheet from '@/components/journal/CalendarSheet';
 import ConfirmModal from '@/components/journal/ConfirmModal';
+import PhotoGrid from '@/components/journal/PhotoGrid';
 import { entryFormStyles as styles } from '@/components/journal/styles';
 import useConfirmBeforeBack from '@/hooks/useConfirmBeforeBack';
 import useIsMountedRef from '@/hooks/useIsMountedRef';
+import useKeyboardVisible from '@/hooks/useKeyboardVisible';
 import colors from '@/styles/colors';
-import { formatShortDate, formatTime } from '@/utils/journalDates';
-import CalendarIcon from '~/assets/CgCalendarDates.svg';
+import {
+  formatMediumDate,
+  formatShortDate,
+  formatTime,
+  isSameDay,
+} from '@/utils/journalDates';
+import CalendarIcon from '~/assets/calendar.svg';
+import DropdownIcon from '~/assets/dropdown.svg';
 
 interface ConfirmCopy {
   title: string;
@@ -30,6 +40,8 @@ interface EntryFormProps {
   date: Date;
   // Prefilled values when editing; blank when creating
   initialValues?: NewJournalEntry;
+  // Fake photo count for previewing the layout until entries store photos
+  initialPhotoCount?: number;
   saveConfirm: ConfirmCopy;
   discardConfirm: ConfirmCopy;
   // Should throw if saving fails so the form can show an error
@@ -37,8 +49,9 @@ interface EntryFormProps {
   onLeave: () => void;
   // Where Cancel goes; same as onLeave unless set
   onCancel?: () => void;
-  // Shows the trash icon. Should throw if deleting fails, and leave the screen
-  // itself since the form goes away along with the entry.
+  // Makes the trash icon delete the saved entry instead of discarding the
+  // draft. Should throw if deleting fails, and leave the screen itself since
+  // the form goes away along with the entry.
   onDelete?: () => Promise<void>;
 }
 
@@ -46,6 +59,7 @@ interface EntryFormProps {
 export default function EntryForm({
   date,
   initialValues = { title: '', content: '' },
+  initialPhotoCount = 0,
   saveConfirm,
   discardConfirm,
   onSave,
@@ -55,6 +69,15 @@ export default function EntryForm({
 }: EntryFormProps) {
   const [title, setTitle] = useState(initialValues.title);
   const [content, setContent] = useState(initialValues.content);
+  const [entryDate, setEntryDate] = useState(date);
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const keyboardVisible = useKeyboardVisible();
+  // Also tracks focus, since a hardware keyboard (like the simulator's) never
+  // shows the on-screen one
+  const [inputFocused, setInputFocused] = useState(!initialValues.content);
+  const typing = keyboardVisible || inputFocused;
+  // Removing a fake photo only hides it here; nothing is saved
+  const [photoCount, setPhotoCount] = useState(initialPhotoCount);
   const [saving, setSaving] = useState(false);
   // State updates wait for a render, so a fast double tap needs a ref to stop it
   const saveInProgress = useRef(false);
@@ -65,19 +88,39 @@ export default function EntryForm({
   const [deleting, setDeleting] = useState(false);
   const deleteInProgress = useRef(false);
 
+  const dateChanged = !isSameDay(entryDate, date);
   const hasChanges =
     title.trim() !== initialValues.title.trim() ||
-    content.trim() !== initialValues.content.trim();
+    content.trim() !== initialValues.content.trim() ||
+    dateChanged;
   const canSave = content.trim().length > 0 && hasChanges;
 
   const confirmDiscard = useCallback(() => setModal('discard'), []);
   const allowLeaving = useConfirmBeforeBack(hasChanges, confirmDiscard);
 
+  // Read when the press starts: on web, pressing anywhere takes focus out of
+  // the text field before the press finishes
+  const wasTypingOnPress = useRef(false);
+
+  // While typing, Cancel just stops typing and keeps the text on screen
   const handleCancel = () => {
-    if (hasChanges) {
+    if (wasTypingOnPress.current) {
+      Keyboard.dismiss();
+    } else if (hasChanges) {
       setModal('cancel');
     } else {
       onCancel();
+    }
+  };
+
+  // Edit Entry: delete the saved entry. New Entry: throw away the draft.
+  const handleTrash = () => {
+    if (onDelete) {
+      setModal('delete');
+    } else if (hasChanges) {
+      setModal('discard');
+    } else {
+      onLeave();
     }
   };
 
@@ -86,7 +129,12 @@ export default function EntryForm({
     saveInProgress.current = true;
     setSaving(true);
     try {
-      await onSave({ title: title.trim(), content: content.trim() });
+      await onSave({
+        title: title.trim(),
+        content: content.trim(),
+        // Only sent when changed, so a new entry otherwise gets the save time
+        ...(dateChanged && { createdAt: entryDate.toISOString() }),
+      });
       // Safe Exit may have been pressed during the save; don't navigate back
       if (!isMounted.current) return;
       setModal(null);
@@ -133,13 +181,14 @@ export default function EntryForm({
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View
-        style={[
-          styles.headerContainer,
-          onDelete && styles.headerGroupedContainer,
-        ]}
-      >
-        <Pressable onPress={handleCancel} hitSlop={12}>
+      <View style={styles.headerContainer}>
+        <Pressable
+          onPressIn={() => {
+            wasTypingOnPress.current = typing;
+          }}
+          onPress={handleCancel}
+          hitSlop={12}
+        >
           <Text style={styles.cancelText}>Cancel</Text>
         </Pressable>
         <Pressable
@@ -149,15 +198,13 @@ export default function EntryForm({
         >
           <Text style={styles.saveText}>Save</Text>
         </Pressable>
-        {onDelete ? (
-          <Pressable
-            onPress={() => setModal('delete')}
-            hitSlop={12}
-            accessibilityLabel="Delete entry"
-          >
-            <Feather name="trash-2" size={22} color={colors.black} />
-          </Pressable>
-        ) : null}
+        <Pressable
+          onPress={handleTrash}
+          hitSlop={12}
+          accessibilityLabel={onDelete ? 'Delete entry' : 'Discard entry'}
+        >
+          <Feather name="trash-2" size={22} color={colors.black} />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView
@@ -169,14 +216,25 @@ export default function EntryForm({
           contentContainerStyle={styles.scrollContentContainer}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.dateChipContainer}>
-            <CalendarIcon width={14} height={14} color={colors.primary} />
-            <Text style={styles.dateText}>
-              {formatShortDate(date)} {formatTime(date)}
-            </Text>
-          </View>
+          {/* Hidden while typing; closing the keyboard brings it back */}
+          {typing ? null : (
+            <Pressable
+              onPress={() => setDatePickerVisible(true)}
+              style={styles.dateChipContainer}
+              accessibilityRole="button"
+              accessibilityLabel={`Entry date ${formatMediumDate(entryDate)}. Change date`}
+            >
+              <CalendarIcon width={16} height={16} />
+              <Text style={styles.dateText}>
+                {formatShortDate(entryDate)} {formatTime(entryDate)}
+              </Text>
+              <DropdownIcon width={12} height={12} />
+            </Pressable>
+          )}
 
           <TextInput
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             style={styles.titleInput}
             value={title}
             onChangeText={setTitle}
@@ -184,10 +242,12 @@ export default function EntryForm({
             placeholderTextColor={colors.textMuted}
             returnKeyType="next"
           />
-          <View style={styles.divider} />
           <TextInput
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             style={[
               styles.contentInput,
+              photoCount === 0 && styles.contentInputTall,
               content.length === 0 && styles.contentPlaceholderText,
             ]}
             value={content}
@@ -196,14 +256,62 @@ export default function EntryForm({
             placeholderTextColor={colors.textMuted}
             multiline
             scrollEnabled={false}
-            autoFocus
+            // A new entry starts typing right away; editing starts by showing
+            // the whole entry
+            autoFocus={!initialValues.content}
           />
+          {photoCount > 0 && !typing ? (
+            <PhotoGrid
+              count={photoCount}
+              onRemove={() => setPhotoCount(count => count - 1)}
+            />
+          ) : null}
         </ScrollView>
 
-        {/* Empty for now; the camera button for photos goes here */}
-        <View style={styles.toolbarContainer} />
+        <View style={styles.toolbarContainer}>
+          {/* Placeholder until photo and document uploads are built */}
+          <Pressable
+            onPress={() =>
+              Alert.alert(
+                'Coming soon',
+                'Adding photos and documents is not available yet.',
+              )
+            }
+            hitSlop={8}
+            style={styles.toolbarButtonContainer}
+            accessibilityLabel="Add photos or documents"
+            accessibilityRole="button"
+          >
+            <Feather name="camera" size={28} color={colors.black} />
+          </Pressable>
+          {typing ? (
+            <Pressable
+              onPress={Keyboard.dismiss}
+              hitSlop={8}
+              style={styles.toolbarButtonContainer}
+              accessibilityLabel="Hide keyboard"
+              accessibilityRole="button"
+            >
+              <Feather name="chevron-down" size={24} color={colors.black} />
+            </Pressable>
+          ) : null}
+        </View>
       </KeyboardAvoidingView>
 
+      <CalendarSheet
+        visible={datePickerVisible}
+        title="Change date"
+        selectedDate={entryDate}
+        getConfirmText={day => `Use ${formatMediumDate(day)}`}
+        onConfirm={day => {
+          // Keeps the original time of day
+          const next = new Date(date);
+          next.setFullYear(day.getFullYear(), day.getMonth(), day.getDate());
+          setEntryDate(next);
+          setDatePickerVisible(false);
+        }}
+        onCancel={() => setDatePickerVisible(false)}
+      />
       <ConfirmModal
         visible={modal === 'save'}
         {...saveConfirm}

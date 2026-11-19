@@ -1,8 +1,7 @@
 import type { StyleProp, ViewStyle } from 'react-native';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
-import colors from '@/styles/colors';
+import styles from '@/styles/safeExitButtonStyles';
 
 interface SafeExitButtonProps {
   style?: StyleProp<ViewStyle>;
@@ -23,23 +22,7 @@ export default function SafeExitButton({ style, onExit }: SafeExitButtonProps) {
       accessibilityLabel="Safe exit"
       accessibilityRole="button"
     >
-      <Feather name="x" size={26} color={colors.white} />
+      <Text style={styles.buttonText}>SAFE EXIT</Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonContainer: {
-    width: 44,
-    aspectRatio: 1,
-    borderRadius: 22,
-    backgroundColor: colors.safeExit,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: colors.safeExit,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-});
